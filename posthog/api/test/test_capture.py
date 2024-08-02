@@ -33,7 +33,11 @@ from prance import ResolvingParser
 from rest_framework import status
 from token_bucket import Limiter, MemoryStorage
 
-from ee.billing.quota_limiting import QuotaLimitingCaches
+try:
+    from ee.billing.quota_limiting import QuotaLimitingCaches
+except ImportError:
+    pass
+
 from posthog.api import capture
 from posthog.api.capture import (
     LIKELY_ANONYMOUS_IDS,

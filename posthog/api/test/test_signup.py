@@ -11,7 +11,11 @@ from django.urls.base import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from ee.models.explicit_team_membership import ExplicitTeamMembership
+try:
+    from ee.models.explicit_team_membership import ExplicitTeamMembership
+except ImportError:
+    pass
+
 from posthog.cloud_utils import TEST_clear_instance_license_cache
 from posthog.constants import AvailableFeature
 from posthog.models import Dashboard, Organization, Team, User

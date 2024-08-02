@@ -145,7 +145,7 @@ export const experimentsLogic = kea<experimentsLogicType>([
     })),
     events(({ actions }) => ({
         afterMount: () => {
-            actions.loadExperiments()
+            // actions.loadExperiments()
         },
     })),
 ])

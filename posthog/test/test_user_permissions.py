@@ -1,5 +1,9 @@
-from ee.models.dashboard_privilege import DashboardPrivilege
-from ee.models.explicit_team_membership import ExplicitTeamMembership
+try:
+    from ee.models.dashboard_privilege import DashboardPrivilege
+    from ee.models.explicit_team_membership import ExplicitTeamMembership
+except ImportError:
+    pass
+
 from posthog.constants import AvailableFeature
 from posthog.models.dashboard import Dashboard
 from posthog.models.dashboard_tile import DashboardTile

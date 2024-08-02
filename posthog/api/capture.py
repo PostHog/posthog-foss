@@ -24,7 +24,15 @@ from statshog.defaults.django import statsd
 from token_bucket import Limiter, MemoryStorage
 from typing import Any, Optional, Literal
 
-from ee.billing.quota_limiting import QuotaLimitingCaches
+logger = structlog.get_logger(__name__)
+
+try:
+    from ee.billing.quota_limiting import QuotaLimitingCaches
+except ImportError:
+    if settings.DEBUG:
+        logger.warn(f"Could not import ee.urls", exc_info=True)
+    pass
+
 from posthog.api.utils import get_data, get_token, safe_clickhouse_string
 from posthog.cache_utils import cache_for
 from posthog.exceptions import generate_exception_response

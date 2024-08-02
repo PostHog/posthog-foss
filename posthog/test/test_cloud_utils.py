@@ -2,7 +2,11 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from ee.models.license import License
+try:
+    from ee.models.license import License
+except ImportError:
+    pass
+
 from posthog.cloud_utils import (
     TEST_clear_instance_license_cache,
     get_cached_instance_license,

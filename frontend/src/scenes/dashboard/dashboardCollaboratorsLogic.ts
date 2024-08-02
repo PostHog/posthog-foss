@@ -140,7 +140,7 @@ export const dashboardCollaboratorsLogic = kea<dashboardCollaboratorsLogicType>(
     }),
     events(({ actions }) => ({
         afterMount: () => {
-            actions.loadExplicitCollaborators()
+            // actions.loadExplicitCollaborators()
         },
     })),
 ])

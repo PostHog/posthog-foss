@@ -537,8 +537,8 @@ export const billingLogic = kea<billingLogicType>([
         },
     })),
     afterMount(({ actions }) => {
-        actions.loadBilling()
-        actions.getInvoices()
+        // actions.loadBilling()
+        // actions.getInvoices()
     }),
     urlToAction(({ actions }) => ({
         // IMPORTANT: This needs to be above the "*" so it takes precedence

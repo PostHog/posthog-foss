@@ -102,11 +102,11 @@ export const groupsModel = kea<groupsModelType>([
         groupsEnabled: (enabled) => {
             // Load the groups types in the case of groups becoming an available feature after this logic is mounted
             if (!values.groupTypesLoading && enabled) {
-                groupsModel.actions.loadAllGroupTypes()
+                // groupsModel.actions.loadAllGroupTypes()
             }
         },
     })),
     afterMount(({ actions }) => {
-        actions.loadAllGroupTypes()
+        // actions.loadAllGroupTypes()
     }),
 ])

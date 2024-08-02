@@ -125,7 +125,7 @@ export const versionCheckerLogic = kea<versionCheckerLogicType>([
 
     afterMount(({ actions, values }) => {
         if (values.lastCheckTimestamp < Date.now() - CHECK_INTERVAL_MS) {
-            actions.loadAvailableVersions()
+            // actions.loadAvailableVersions()
             actions.loadUsedVersions()
         }
     }),

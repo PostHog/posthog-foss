@@ -1,6 +1,10 @@
 from rest_framework import status
 
-from ee.api.test.base import LicensedTestMixin
+try:
+    from ee.api.test.base import LicensedTestMixin
+except ImportError:
+    pass
+
 from posthog.api.test.dashboards import DashboardAPI
 from posthog.models.insight import Insight
 from posthog.test.base import APIBaseTest, ClickhouseTestMixin, QueryMatchingTest

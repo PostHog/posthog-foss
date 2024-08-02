@@ -170,6 +170,6 @@ export const playlistPopoverLogic = kea<playlistPopoverLogicType>([
     })),
 
     afterMount(({ actions }) => {
-        actions.loadPlaylistsForRecording()
+        // actions.loadPlaylistsForRecording()
     }),
 ])
