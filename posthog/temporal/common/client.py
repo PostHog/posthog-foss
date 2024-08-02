@@ -1,3 +1,4 @@
+import os
 import dataclasses
 
 import temporalio.converter
@@ -24,6 +25,9 @@ async def connect(
             client_cert=bytes(client_cert, "utf-8"),
             client_private_key=bytes(client_key, "utf-8"),
         )
+    in_docker = os.getenv("IN_DOCKER", "false").lower() in ("true", "1", "t")
+    if in_docker:
+        host = "temporal"
     client = await Client.connect(
         f"{host}:{port}",
         namespace=namespace,

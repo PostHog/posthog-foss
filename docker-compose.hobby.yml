@@ -86,6 +86,8 @@ services:
             SECRET_KEY: $POSTHOG_SECRET
             OBJECT_STORAGE_ENDPOINT: http://objectstorage:19000
             OBJECT_STORAGE_ENABLED: true
+            # KAFKA_MAX_REQUEST_SIZE default 1MB, change to 2MB
+            SESSION_RECORDING_KAFKA_MAX_REQUEST_SIZE_BYTES: 20971520
         depends_on:
             - db
             - redis

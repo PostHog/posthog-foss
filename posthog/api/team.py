@@ -432,7 +432,6 @@ class TeamViewSet(TeamAndOrgViewSetMixin, viewsets.ModelViewSet):
         permissions: list = [
             IsAuthenticated,
             APIScopePermission,
-            PremiumMultiProjectPermissions,
             *self.permission_classes,
         ]
 

@@ -27,7 +27,6 @@ import posthog from 'posthog-js'
 import { RefObject } from 'react'
 import { Replayer } from 'rrweb'
 import { playerConfig, ReplayPlugin } from 'rrweb/typings/types'
-import { openBillingPopupModal } from 'scenes/billing/BillingPopup'
 import { preflightLogic } from 'scenes/PreflightCheck/preflightLogic'
 import {
     sessionRecordingDataLogic,
@@ -37,7 +36,7 @@ import { MatchingEventsMatchType } from 'scenes/session-recordings/playlist/sess
 import { urls } from 'scenes/urls'
 import { userLogic } from 'scenes/userLogic'
 
-import { AvailableFeature, RecordingSegment, SessionPlayerData, SessionPlayerState } from '~/types'
+import { RecordingSegment, SessionPlayerData, SessionPlayerState } from '~/types'
 
 import type { sessionRecordingsPlaylistLogicType } from '../playlist/sessionRecordingsPlaylistLogicType'
 import { playerSettingsLogic } from './playerSettingsLogic'
@@ -929,15 +928,6 @@ export const sessionRecordingPlayerLogic = kea<sessionRecordingPlayerLogicType>(
 
         exportRecordingToFile: async ({ exportUntransformedMobileData }) => {
             if (!values.sessionPlayerData) {
-                return
-            }
-
-            if (!values.user?.is_impersonated && !values.hasAvailableFeature(AvailableFeature.RECORDINGS_FILE_EXPORT)) {
-                openBillingPopupModal({
-                    title: 'Unlock recording exports',
-                    description:
-                        'Export recordings to a file that can be stored wherever you like and loaded back into PostHog for playback at any time.',
-                })
                 return
             }
 
