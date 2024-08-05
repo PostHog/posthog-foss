@@ -157,7 +157,7 @@ class OrganizationViewSet(TeamAndOrgViewSetMixin, viewsets.ModelViewSet):
                 permission()
                 for permission in [
                     permissions.IsAuthenticated,
-                    PremiumMultiorganizationPermissions,
+                    # PremiumMultiorganizationPermissions,
                     TimeSensitiveActionPermission,
                     APIScopePermission,
                 ]

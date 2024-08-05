@@ -314,7 +314,8 @@
         "patchedDependencies": {
             "rrweb@2.0.0-alpha.13": "patches/rrweb@2.0.0-alpha.13.patch",
             "heatmap.js@2.0.5": "patches/heatmap.js@2.0.5.patch",
-            "dayjs@1.11.11": "patches/dayjs@1.11.11.patch"
+            "dayjs@1.11.11": "patches/dayjs@1.11.11.patch",
+            "posthog-js@1.154.0": "patches/posthog-js@1.154.0.patch"
         }
     },
     "lint-staged": {

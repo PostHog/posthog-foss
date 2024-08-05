@@ -14,6 +14,9 @@ patchedDependencies:
   heatmap.js@2.0.5:
     hash: gydrxrztd4ruyhouu6tu7zh43e
     path: patches/heatmap.js@2.0.5.patch
+  posthog-js@1.154.0:
+    hash: uwxtugcm4q7oinzhxbonmxph5m
+    path: patches/posthog-js@1.154.0.patch
   rrweb@2.0.0-alpha.13:
     hash: e2gmypqces37eklplr5o3rvywa
     path: patches/rrweb@2.0.0-alpha.13.patch
