@@ -94,6 +94,8 @@ services:
             - clickhouse
             - kafka
             - objectstorage
+        ports:
+            - '8002:8000'
 
     plugins:
         extends:
@@ -111,18 +113,6 @@ services:
             - kafka
             - objectstorage
 
-    caddy:
-        image: caddy:2.6.1
-        restart: unless-stopped
-        ports:
-            - '80:80'
-            - '443:443'
-        volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile
-            - caddy-data:/data
-            - caddy-config:/config
-        depends_on:
-            - web
     objectstorage:
         extends:
             file: docker-compose.base.yml
@@ -171,7 +161,7 @@ services:
             file: docker-compose.base.yml
             service: temporal-ui
         ports:
-            - 8081:8080
+            - 8003:8080
         depends_on:
             temporal:
                 condition: service_started
@@ -188,6 +178,7 @@ services:
         environment:
             SENTRY_DSN: $SENTRY_DSN
             SITE_URL: https://$DOMAIN
+            SECRET_KEY: $POSTHOG_SECRET
         depends_on:
             - db
             - redis
@@ -203,7 +194,5 @@ volumes:
     objectstorage:
     postgres-data:
     clickhouse-data:
-    caddy-data:
-    caddy-config:
     redis-data:
     kafka-data:
