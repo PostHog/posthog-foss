@@ -134,7 +134,7 @@ export const featureFlagPermissionsLogic = kea<featureFlagPermissionsLogicType>(
         ],
     }),
     afterMount(({ actions }) => {
-        actions.loadPossibleRolesToAdd()
-        actions.loadAssociatedRoles()
+        // actions.loadPossibleRolesToAdd()
+        // actions.loadAssociatedRoles()
     }),
 ])

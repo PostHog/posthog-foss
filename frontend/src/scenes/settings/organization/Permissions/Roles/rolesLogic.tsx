@@ -139,6 +139,6 @@ export const rolesLogic = kea<rolesLogicType>([
         ],
     }),
     afterMount(({ actions }) => {
-        actions.loadRoles()
+        // actions.loadRoles()
     }),
 ])

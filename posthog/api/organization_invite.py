@@ -11,7 +11,11 @@ from rest_framework import (
 )
 from rest_framework.decorators import action
 
-from ee.models.explicit_team_membership import ExplicitTeamMembership
+try:
+    from ee.models.explicit_team_membership import ExplicitTeamMembership
+except ImportError:
+    pass
+
 from posthog.api.routing import TeamAndOrgViewSetMixin
 from posthog.api.shared import UserBasicSerializer
 from posthog.email import is_email_available

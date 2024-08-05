@@ -2,7 +2,10 @@ import pprint
 
 from django.core.management.base import BaseCommand
 
-from ee.billing.quota_limiting import update_all_org_billing_quotas
+try:
+    from ee.billing.quota_limiting import update_all_org_billing_quotas
+except ImportError:
+    pass
 
 
 class Command(BaseCommand):

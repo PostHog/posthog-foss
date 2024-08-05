@@ -176,7 +176,7 @@ export const teamMembersLogic = kea<teamMembersLogicType>([
         },
     })),
     afterMount(({ actions }) => {
-        actions.loadMembers()
+        // actions.loadMembers()
         membersLogic.actions.ensureAllMembersLoaded()
     }),
 ])

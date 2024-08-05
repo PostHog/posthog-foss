@@ -239,6 +239,6 @@ export const savedSessionRecordingPlaylistsLogic = kea<savedSessionRecordingPlay
         },
     })),
     afterMount(({ actions }) => {
-        actions.loadPlaylists()
+        // actions.loadPlaylists()
     }),
 ])

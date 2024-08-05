@@ -6,7 +6,11 @@ from django.db import models
 from django.utils import timezone
 from rest_framework import exceptions
 
-from ee.models.explicit_team_membership import ExplicitTeamMembership
+try:
+    from ee.models.explicit_team_membership import ExplicitTeamMembership
+except ImportError:
+    pass
+
 from posthog.constants import INVITE_DAYS_VALIDITY
 from posthog.email import is_email_available
 from posthog.models.organization import OrganizationMembership

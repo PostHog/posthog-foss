@@ -200,7 +200,7 @@ export const sessionRecordingsPlaylistSceneLogic = kea<sessionRecordingsPlaylist
     })),
 
     afterMount(({ actions }) => {
-        actions.getPlaylist()
-        actions.loadPinnedRecordings()
+        // actions.getPlaylist()
+        // actions.loadPinnedRecordings()
     }),
 ])

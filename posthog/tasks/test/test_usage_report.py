@@ -11,10 +11,14 @@ from django.test import TestCase
 from django.utils.timezone import now
 from freezegun import freeze_time
 
-from ee.api.test.base import LicensedTestMixin
-from ee.billing.billing_manager import build_billing_token
-from ee.models.license import License
-from ee.settings import BILLING_SERVICE_URL
+try:
+    from ee.api.test.base import LicensedTestMixin
+    from ee.billing.billing_manager import build_billing_token
+    from ee.models.license import License
+    from ee.settings import BILLING_SERVICE_URL
+except ImportError:
+    pass
+
 from posthog.clickhouse.client import sync_execute
 from posthog.cloud_utils import TEST_clear_instance_license_cache
 from posthog.hogql.query import execute_hogql_query
