@@ -11,7 +11,6 @@ export enum PipelineBackend {
     BatchExport = 'batch_export',
     Plugin = 'plugin',
     HogFunction = 'hog_function',
-    ManagedSource = 'managed_source',
 }
 
 // Base - we're taking a discriminated union approach here, so that TypeScript can discern types for free
@@ -84,6 +83,10 @@ export type NewDestinationFilters = {
     kind?: PipelineBackend
 }
 
+export interface DataImportApp extends PluginBasedNode {
+    stage: PipelineStage.DataImport
+}
+
 // Legacy: Site apps
 export interface SiteApp extends PluginBasedNode {
     stage: PipelineStage.SiteApp
@@ -94,13 +97,9 @@ export interface ImportApp extends PluginBasedNode {
     stage: PipelineStage.ImportApp
 }
 
-export interface Source extends PluginBasedNode {
-    stage: PipelineStage.Source
-}
-
 // Final
 
-export type PipelineNode = Transformation | Destination | SiteApp | ImportApp | Source
+export type PipelineNode = Transformation | Destination | SiteApp | ImportApp | DataImportApp
 
 // Utils
 
@@ -117,12 +116,12 @@ export function convertToPipelineNode<S extends PipelineStage>(
     ? Transformation
     : S extends PipelineStage.Destination
     ? Destination
+    : S extends PipelineStage.DataImport
+    ? DataImportApp
     : S extends PipelineStage.SiteApp
     ? SiteApp
     : S extends PipelineStage.ImportApp
     ? ImportApp
-    : S extends PipelineStage.Source
-    ? Source
     : never {
     let node: PipelineNode
     // check if type is a hog function
@@ -141,7 +140,7 @@ export function convertToPipelineNode<S extends PipelineStage>(
         }
     } else if (isPluginConfig(candidate)) {
         const almostNode: Omit<
-            Transformation | WebhookDestination | SiteApp | ImportApp | Source,
+            Transformation | WebhookDestination | SiteApp | ImportApp | DataImportApp,
             'frequency' | 'order'
         > = {
             stage: stage,

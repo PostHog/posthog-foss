@@ -14,13 +14,9 @@ const StatusTagSetting: Record<ExternalDataJob['status'], LemonTagType> = {
     Cancelled: 'default',
 }
 
-interface SyncsProps {
-    id: string
-}
-
-export const Syncs = ({ id }: SyncsProps): JSX.Element => {
-    const { jobs, jobsLoading, canLoadMoreJobs } = useValues(dataWarehouseSourceSettingsLogic({ id }))
-    const { loadMoreJobs } = useActions(dataWarehouseSourceSettingsLogic({ id }))
+export const Syncs = (): JSX.Element => {
+    const { jobs, jobsLoading, canLoadMoreJobs } = useValues(dataWarehouseSourceSettingsLogic)
+    const { loadMoreJobs } = useActions(dataWarehouseSourceSettingsLogic)
 
     return (
         <LemonTable

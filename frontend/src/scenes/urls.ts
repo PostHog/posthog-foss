@@ -9,6 +9,7 @@ import {
     AnnotationType,
     AnyPartialFilterType,
     DashboardType,
+    DataWarehouseTab,
     InsightShortId,
     PipelineNodeTab,
     PipelineStage,
@@ -50,7 +51,7 @@ export const urls = {
 
     sharedDashboard: (shareToken: string): string => `/shared_dashboard/${shareToken}`,
     createAction: (): string => `/data-management/actions/new`,
-    duplicateAction: (action: ActionType | null): string => {
+    copyAction: (action: ActionType | null): string => {
         const queryParams = action ? `?copy=${encodeURIComponent(JSON.stringify(action))}` : ''
         return `/data-management/actions/new/${queryParams}`
     },
@@ -81,17 +82,15 @@ export const urls = {
             ...(query ? { q: typeof query === 'string' ? query : JSON.stringify(query) } : {}),
         }).url,
     insightNewHogQL: (query: string, filters?: HogQLFilters): string =>
-        combineUrl(
-            `/data-warehouse`,
-            {},
-            {
-                q: JSON.stringify({
-                    kind: 'DataTableNode',
-                    full: true,
-                    source: { kind: 'HogQLQuery', query, filters },
-                }),
-            }
-        ).url,
+        urls.insightNew(
+            undefined,
+            undefined,
+            JSON.stringify({
+                kind: 'DataTableNode',
+                full: true,
+                source: { kind: 'HogQLQuery', query, filters },
+            })
+        ),
     insightEdit: (id: InsightShortId): string => `/insights/${id}/edit`,
     insightView: (id: InsightShortId): string => `/insights/${id}`,
     insightSubcriptions: (id: InsightShortId): string => `/insights/${id}/subscriptions`,
@@ -112,7 +111,13 @@ export const urls = {
     personByUUID: (uuid: string, encode: boolean = true): string =>
         encode ? `/persons/${encodeURIComponent(uuid)}` : `/persons/${uuid}`,
     persons: (): string => '/persons',
+    pipelineNodeDataWarehouseNew: (): string => `/pipeline/new/data-warehouse`,
     pipelineNodeNew: (stage: PipelineStage | ':stage', id?: string | number): string => {
+        if (stage === PipelineStage.DataImport) {
+            // should match 'pipelineNodeDataWarehouseNew'
+            return `/pipeline/new/data-warehouse`
+        }
+
         return `/pipeline/new/${stage}${id ? `/${id}` : ''}`
     },
     pipeline: (tab?: PipelineTab | ':tab'): string => `/pipeline/${tab ? tab : PipelineTab.Overview}`,
@@ -142,9 +147,12 @@ export const urls = {
     /** @param id A UUID or 'new'. ':id' for routing. */
     survey: (id: string): string => `/surveys/${id}`,
     surveyTemplates: (): string => '/survey_templates',
-    dataWarehouse: (query?: string | Record<string, any>): string =>
-        combineUrl(`/data-warehouse`, {}, query ? { q: typeof query === 'string' ? query : JSON.stringify(query) } : {})
-            .url,
+    dataWarehouse: (tab?: DataWarehouseTab | ':tab', query?: string | Record<string, any>): string =>
+        combineUrl(
+            `/data-warehouse/${tab ? tab : DataWarehouseTab.Explore}`,
+            {},
+            query ? { q: typeof query === 'string' ? query : JSON.stringify(query) } : {}
+        ).url,
     dataWarehouseView: (id: string, query?: string | Record<string, any>): string =>
         combineUrl(
             `/data-warehouse/view/${id}`,
@@ -152,7 +160,11 @@ export const urls = {
             query ? { q: typeof query === 'string' ? query : JSON.stringify(query) } : {}
         ).url,
     dataWarehouseTable: (): string => `/data-warehouse/new`,
+    dataWarehouseSettings: (tab?: DataWarehouseTab | ':tab'): string =>
+        `/data-warehouse/${tab ? tab : DataWarehouseTab.Explore}`,
     dataWarehouseRedirect: (kind: string): string => `/data-warehouse/${kind}/redirect`,
+    dataWarehouseSourceSettings: (id: string, tab?: DataWarehouseTab | ':tab'): string =>
+        `/data-warehouse/settings/${tab ? tab : DataWarehouseTab.ManagedSources}/${id}`,
     annotations: (): string => '/data-management/annotations',
     annotation: (id: AnnotationType['id'] | ':id'): string => `/data-management/annotations/${id}`,
     organizationCreateFirst: (): string => '/create-organization',

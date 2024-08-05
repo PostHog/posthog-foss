@@ -97,7 +97,7 @@ function DictionaryField({ onChange, value }: { onChange?: (value: any) => void;
                     />
 
                     <HogFunctionTemplateInput
-                        className="flex-2 overflow-hidden"
+                        className="flex-2 max-w-full"
                         value={val}
                         language="hogTemplate"
                         onChange={(val) => {

@@ -145,7 +145,7 @@ export const hogFunctionConfigurationLogic = kea<hogFunctionConfigurationLogicTy
         upsertHogFunction: (configuration: HogFunctionConfigurationType) => ({ configuration }),
         duplicate: true,
         duplicateFromTemplate: true,
-        resetToTemplate: (keepInputs = true) => ({ keepInputs }),
+        resetToTemplate: true,
         deleteHogFunction: true,
         sparklineQueryChanged: (sparklineQuery: TrendsQuery) => ({ sparklineQuery } as { sparklineQuery: TrendsQuery }),
     }),
@@ -154,13 +154,6 @@ export const hogFunctionConfigurationLogic = kea<hogFunctionConfigurationLogicTy
             false,
             {
                 setShowSource: (_, { showSource }) => showSource,
-            },
-        ],
-
-        hasHadSubmissionErrors: [
-            false,
-            {
-                upsertHogFunctionFailure: () => true,
             },
         ],
     }),
@@ -583,15 +576,15 @@ export const hogFunctionConfigurationLogic = kea<hogFunctionConfigurationLogicTy
                 )
             }
         },
-        resetToTemplate: async ({ keepInputs }) => {
+        resetToTemplate: async () => {
             if (values.hogFunction?.template) {
                 const template = values.hogFunction.template
                 // Fill defaults from template
                 const inputs: Record<string, HogFunctionInputType> = {}
 
                 template.inputs_schema?.forEach((schema) => {
-                    inputs[schema.key] = (keepInputs ? values.configuration.inputs?.[schema.key] : undefined) ?? {
-                        value: schema.default,
+                    if (schema.default) {
+                        inputs[schema.key] = { value: schema.default }
                     }
                 })
 
@@ -607,10 +600,8 @@ export const hogFunctionConfigurationLogic = kea<hogFunctionConfigurationLogicTy
             }
         },
         setConfigurationValue: () => {
-            if (values.hasHadSubmissionErrors) {
-                // Clear the manually set errors otherwise the submission won't work
-                actions.setConfigurationManualErrors({})
-            }
+            // Clear the manually set errors otherwise the submission won't work
+            actions.setConfigurationManualErrors({})
         },
 
         deleteHogFunction: async () => {

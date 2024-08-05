@@ -40,7 +40,7 @@ export const UnsubscribeCard = ({ product }: { product: BillingProductV2Type }):
                     type="secondary"
                     size="small"
                     onClick={() => {
-                        setSurveyResponse('$survey_response_1', product.type)
+                        setSurveyResponse(product.type, '$survey_response_1')
                         reportSurveyShown(UNSUBSCRIBE_SURVEY_ID, product.type)
                     }}
                 >

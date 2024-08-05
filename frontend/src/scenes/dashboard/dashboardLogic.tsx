@@ -1031,7 +1031,7 @@ export const dashboardLogic = kea<dashboardLogicType>([
                             insight,
                             dashboardId,
                             queryId,
-                            'force_cache',
+                            'async',
                             methodOptions
                         )
                         dashboardsModel.actions.updateDashboardInsight(polledInsight)

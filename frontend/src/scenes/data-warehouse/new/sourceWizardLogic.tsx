@@ -10,6 +10,7 @@ import { urls } from 'scenes/urls'
 
 import {
     Breadcrumb,
+    DataWarehouseTab,
     ExternalDataSourceCreatePayload,
     ExternalDataSourceSyncSchema,
     ExternalDataSourceType,
@@ -64,7 +65,7 @@ export const SOURCE_DETAILS: Record<ExternalDataSourceType, SourceConfig> = {
     Hubspot: {
         name: 'Hubspot',
         fields: [],
-        caption: 'Succesfully authenticated with Hubspot. Please continue here to complete the source setup',
+        caption: '',
     },
     Postgres: {
         name: 'Postgres',
@@ -842,7 +843,12 @@ export const sourceWizardLogic = kea<sourceWizardLogicType>([
         },
         closeWizard: () => {
             actions.cancelWizard()
-            router.actions.push(urls.pipeline(PipelineTab.Sources))
+
+            if (router.values.location.pathname.includes(urls.dataWarehouseTable())) {
+                router.actions.push(urls.dataWarehouse(DataWarehouseTab.ManagedSources))
+            } else if (router.values.location.pathname.includes(urls.pipelineNodeDataWarehouseNew())) {
+                router.actions.push(urls.pipeline(PipelineTab.DataImport))
+            }
         },
         cancelWizard: () => {
             actions.onClear()

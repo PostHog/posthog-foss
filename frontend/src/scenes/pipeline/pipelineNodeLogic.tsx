@@ -29,11 +29,7 @@ type HogFunctionNodeId = {
     backend: PipelineBackend.HogFunction
     id: string
 }
-type ManagedSourceId = {
-    backend: PipelineBackend.ManagedSource
-    id: string
-}
-export type PipelineNodeLimitedType = PluginNodeId | BatchExportNodeId | HogFunctionNodeId | ManagedSourceId
+export type PipelineNodeLimitedType = PluginNodeId | BatchExportNodeId | HogFunctionNodeId
 
 export const pipelineNodeLogic = kea<pipelineNodeLogicType>([
     props({} as PipelineNodeLogicProps),
@@ -99,19 +95,11 @@ export const pipelineNodeLogic = kea<pipelineNodeLogicType>([
         node: [
             (_, p) => [p.id],
             (id): PipelineNodeLimitedType => {
-                if (typeof id === 'string') {
-                    if (id.indexOf('hog-') === 0) {
-                        return { backend: PipelineBackend.HogFunction, id: `${id}`.replace('hog-', '') }
-                    }
-
-                    if (id.indexOf('managed') === 0) {
-                        return { backend: PipelineBackend.ManagedSource, id: `${id}`.replace('managed-', '') }
-                    }
-
-                    return { backend: PipelineBackend.BatchExport, id }
-                }
-
-                return { backend: PipelineBackend.Plugin, id }
+                return typeof id === 'string'
+                    ? id.indexOf('hog-') === 0
+                        ? { backend: PipelineBackend.HogFunction, id: `${id}`.replace('hog-', '') }
+                        : { backend: PipelineBackend.BatchExport, id }
+                    : { backend: PipelineBackend.Plugin, id }
             },
         ],
         tabs: [

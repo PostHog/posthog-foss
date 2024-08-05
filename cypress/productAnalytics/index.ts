@@ -192,15 +192,11 @@ export const dashboard = {
     },
 }
 
-export function createInsight(insightName: string): Cypress.Chainable<string> {
+export function createInsight(insightName: string): void {
     savedInsights.createNewInsightOfType('TRENDS')
     insight.applyFilter()
     insight.editName(insightName)
     insight.save()
-    // return insight id from the url
-    return cy.url().then((url) => {
-        return url.split('/').at(-1)
-    })
 }
 
 export function duplicateDashboardFromMenu(duplicateTiles = false): void {

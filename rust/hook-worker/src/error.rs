@@ -4,7 +4,6 @@ use std::time;
 
 use crate::dns::NoPublicIPv4Error;
 use hook_common::{pgqueue, webhook::WebhookJobError};
-use http::StatusCode;
 use thiserror::Error;
 
 /// Enumeration of error classes handled by `WebhookWorker`.
@@ -32,13 +31,11 @@ pub enum WebhookParseError {
 pub enum WebhookRequestError {
     RetryableRequestError {
         error: reqwest::Error,
-        status: Option<StatusCode>,
         response: Option<String>,
         retry_after: Option<time::Duration>,
     },
     NonRetryableRetryableRequestError {
         error: reqwest::Error,
-        status: Option<StatusCode>,
         response: Option<String>,
     },
 }
@@ -62,16 +59,9 @@ impl fmt::Display for WebhookRequestError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             WebhookRequestError::RetryableRequestError {
-                error,
-                status: _,
-                response,
-                ..
+                error, response, ..
             }
-            | WebhookRequestError::NonRetryableRetryableRequestError {
-                error,
-                status: _,
-                response,
-            } => {
+            | WebhookRequestError::NonRetryableRetryableRequestError { error, response } => {
                 let response_message = match response {
                     Some(m) => m.to_string(),
                     None => "No response from the server".to_string(),

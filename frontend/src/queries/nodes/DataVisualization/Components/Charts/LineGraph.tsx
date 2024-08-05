@@ -7,7 +7,6 @@ import { LemonTable } from '@posthog/lemon-ui'
 import { ChartData, ChartType, Color, GridLineOptions, TickOptions, TooltipModel } from 'chart.js'
 import annotationPlugin, { AnnotationPluginOptions, LineAnnotationOptions } from 'chartjs-plugin-annotation'
 import dataLabelsPlugin from 'chartjs-plugin-datalabels'
-import ChartjsPluginStacked100 from 'chartjs-plugin-stacked100'
 import clsx from 'clsx'
 import { useValues } from 'kea'
 import { Chart, ChartItem, ChartOptions } from 'lib/Chart'
@@ -24,7 +23,6 @@ import { dataVisualizationLogic, formatDataWithSettings } from '../../dataVisual
 import { displayLogic } from '../../displayLogic'
 
 Chart.register(annotationPlugin)
-Chart.register(ChartjsPluginStacked100)
 
 export const LineGraph = (): JSX.Element => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -33,8 +31,7 @@ export const LineGraph = (): JSX.Element => {
 
     // TODO: Extract this logic out of this component and inject values in
     // via props. Make this a purely presentational component
-    const { xData, yData, presetChartHeight, visualizationType, showEditingUI, chartSettings } =
-        useValues(dataVisualizationLogic)
+    const { xData, yData, presetChartHeight, visualizationType, showEditingUI } = useValues(dataVisualizationLogic)
     const isBarChart =
         visualizationType === ChartDisplayType.ActionsBar || visualizationType === ChartDisplayType.ActionsStackedBar
     const isStackedBarChart = visualizationType === ChartDisplayType.ActionsStackedBar
@@ -115,7 +112,6 @@ export const LineGraph = (): JSX.Element => {
                 },
             },
             plugins: {
-                stacked100: { enable: isStackedBarChart && chartSettings.stackBars100, precision: 1 },
                 datalabels: {
                     color: 'white',
                     anchor: (context) => {
@@ -128,17 +124,6 @@ export const LineGraph = (): JSX.Element => {
                     display: () => {
                         // TODO: Update when "show values on chart" becomes an option
                         return false
-                    },
-                    formatter: () => {
-                        // TODO: Update when "show values on chart" becomes an option
-                        // const data = context.chart.data as ExtendedChartData
-                        // const { datasetIndex, dataIndex } = context
-                        // const percentageValue = data.calculatedData?.[datasetIndex][dataIndex]
-                        // if (isStackedBarChart && chartSettings.stackBars100) {
-                        //     value = Number(percentageValue)
-                        //     return percentage(value / 100)
-                        // }
-                        // return value
                     },
                     borderWidth: 2,
                     borderRadius: 4,
@@ -197,8 +182,6 @@ export const LineGraph = (): JSX.Element => {
                                         dataSource={yData.map(({ data, column, settings }) => ({
                                             series: column.name,
                                             data: formatDataWithSettings(data[referenceDataPoint.dataIndex], settings),
-                                            rawData: data[referenceDataPoint.dataIndex],
-                                            dataIndex: referenceDataPoint.dataIndex,
                                         }))}
                                         columns={[
                                             {
@@ -222,22 +205,7 @@ export const LineGraph = (): JSX.Element => {
                                             {
                                                 title: '',
                                                 dataIndex: 'data',
-                                                render: (value, record) => {
-                                                    if (isStackedBarChart && chartSettings.stackBars100) {
-                                                        const total = yData
-                                                            .map((n) => n.data[record.dataIndex])
-                                                            .reduce((acc, cur) => acc + cur, 0)
-                                                        const percentageLabel: number = parseFloat(
-                                                            ((record.rawData / total) * 100).toFixed(1)
-                                                        )
-
-                                                        return (
-                                                            <div className="series-data-cell">
-                                                                {value} ({percentageLabel}%)
-                                                            </div>
-                                                        )
-                                                    }
-
+                                                render: (value) => {
                                                     return <div className="series-data-cell">{value}</div>
                                                 },
                                             },
@@ -286,7 +254,7 @@ export const LineGraph = (): JSX.Element => {
                 },
                 y: {
                     display: true,
-                    beginAtZero: chartSettings.yAxisAtZero ?? true,
+                    beginAtZero: true,
                     stacked: isAreaChart || isStackedBarChart,
                     ticks: {
                         display: true,
@@ -305,7 +273,7 @@ export const LineGraph = (): JSX.Element => {
             plugins: [dataLabelsPlugin],
         })
         return () => newChart.destroy()
-    }, [xData, yData, visualizationType, goalLines, chartSettings])
+    }, [xData, yData, visualizationType, goalLines])
 
     return (
         <div

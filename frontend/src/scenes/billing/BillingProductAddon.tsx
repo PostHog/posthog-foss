@@ -125,7 +125,7 @@ export const BillingProductAddon = ({ addon }: { addon: BillingProductV2AddonTyp
                                             <LemonButton
                                                 fullWidth
                                                 onClick={() => {
-                                                    setSurveyResponse('$survey_response_1', addon.type)
+                                                    setSurveyResponse(addon.type, '$survey_response_1')
                                                     reportSurveyShown(UNSUBSCRIBE_SURVEY_ID, addon.type)
                                                 }}
                                             >

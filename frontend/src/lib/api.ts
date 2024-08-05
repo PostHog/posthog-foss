@@ -899,16 +899,14 @@ const api = {
     insights: {
         loadInsight(
             shortId: InsightModel['short_id'],
-            basic?: boolean,
-            refresh?: RefreshType
+            basic?: boolean
         ): Promise<PaginatedResponse<Partial<InsightModel>>> {
             return new ApiRequest()
                 .insights()
                 .withQueryString(
                     toParams({
                         short_id: encodeURIComponent(shortId),
-                        basic,
-                        refresh,
+                        basic: basic,
                     })
                 )
                 .get()

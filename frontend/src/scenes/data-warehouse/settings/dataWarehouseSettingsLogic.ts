@@ -7,7 +7,7 @@ import posthog from 'posthog-js'
 import { databaseTableListLogic } from 'scenes/data-management/database/databaseTableListLogic'
 
 import { DatabaseSchemaDataWarehouseTable } from '~/queries/schema'
-import { DataWarehouseSettingsTab, ExternalDataSourceSchema, ExternalDataStripeSource } from '~/types'
+import { DataWarehouseSettingsTab, DataWarehouseTab, ExternalDataSourceSchema, ExternalDataStripeSource } from '~/types'
 
 import type { dataWarehouseSettingsLogicType } from './dataWarehouseSettingsLogicType'
 
@@ -36,6 +36,7 @@ export const dataWarehouseSettingsLogic = kea<dataWarehouseSettingsLogicType>([
         sourceLoadingFinished: (source: ExternalDataStripeSource) => ({ source }),
         schemaLoadingFinished: (schema: ExternalDataSourceSchema) => ({ schema }),
         abortAnyRunningQuery: true,
+        setCurrentTab: (tab: DataWarehouseTab = DataWarehouseTab.ManagedSources) => ({ tab }),
         deleteSelfManagedTable: (tableId: string) => ({ tableId }),
     }),
     loaders(({ cache, actions, values }) => ({

@@ -1,6 +1,8 @@
 import { TZLabel } from '@posthog/apps-common'
 import { LemonButton, LemonDialog, LemonTable, LemonTag, Link, Spinner, Tooltip } from '@posthog/lemon-ui'
 import { useActions, useValues } from 'kea'
+import { router } from 'kea-router'
+import { ProductIntroduction } from 'lib/components/ProductIntroduction/ProductIntroduction'
 import { More } from 'lib/lemon-ui/LemonButton/More'
 import { LemonTableLink } from 'lib/lemon-ui/LemonTable/LemonTableLink'
 import IconAwsS3 from 'public/services/aws-s3.png'
@@ -15,7 +17,7 @@ import IconStripe from 'public/services/stripe.png'
 import IconZendesk from 'public/services/zendesk.png'
 import { urls } from 'scenes/urls'
 
-import { manualLinkSources, PipelineNodeTab, PipelineStage } from '~/types'
+import { DataWarehouseTab, manualLinkSources, ProductKey } from '~/types'
 
 import { dataWarehouseSettingsLogic } from './dataWarehouseSettingsLogic'
 
@@ -31,12 +33,25 @@ export function DataWarehouseManagedSourcesTable(): JSX.Element {
         useValues(dataWarehouseSettingsLogic)
     const { deleteSource, reloadSource } = useActions(dataWarehouseSettingsLogic)
 
+    if (!dataWarehouseSourcesLoading && dataWarehouseSources?.results.length === 0) {
+        return (
+            <ProductIntroduction
+                productName="Data Warehouse Source"
+                productKey={ProductKey.DATA_WAREHOUSE}
+                thingName="data source"
+                description="Use data warehouse sources to import data from your external data into PostHog."
+                isEmpty={dataWarehouseSources?.results.length == 0}
+                docsURL="https://posthog.com/docs/data-warehouse"
+                action={() => router.actions.push(urls.pipelineNodeDataWarehouseNew())}
+            />
+        )
+    }
+
     return (
         <LemonTable
             dataSource={dataWarehouseSources?.results ?? []}
             loading={dataWarehouseSourcesLoading}
             disableTableWhileLoading={false}
-            pagination={{ pageSize: 10 }}
             columns={[
                 {
                     width: 0,
@@ -50,11 +65,7 @@ export function DataWarehouseManagedSourcesTable(): JSX.Element {
                     render: function RenderName(_, source) {
                         return (
                             <LemonTableLink
-                                to={urls.pipelineNode(
-                                    PipelineStage.Source,
-                                    `managed-${source.id}`,
-                                    PipelineNodeTab.Schemas
-                                )}
+                                to={urls.dataWarehouseSourceSettings(source.id, DataWarehouseTab.ManagedSources)}
                                 title={source.source_type}
                                 description={source.prefix}
                             />
