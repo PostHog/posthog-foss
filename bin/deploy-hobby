@@ -78,7 +78,7 @@ echo "Installing PostHog 🦔 from Github"
 sudo apt install -y git
 # try to clone - if folder is already there pull latest for that branch
 git clone https://github.com/hho93/posthog-foss.git &> /dev/null || true
-cd posthog
+cd posthog-foss
 
 if [[ "$POSTHOG_APP_TAG" = "latest-release" ]]
 then
