@@ -15,7 +15,7 @@ Let's get you developing the plugin server in no time:
 
 1. Start a development instance of [PostHog](/PostHog/posthog) - [instructions
    here](https://posthog.com/docs/developing-locally). After all, this is the _PostHog_ Plugin
-   Server, and it works in conjuction with the main server.
+   Server, and it works in conjunction with the main server.
 
 1. Make sure that the plugin server is configured correctly (see [Configuration](#Configuration)).
    The following settings need to be the same for the plugin server and the main server:
