@@ -1,2 +1,0 @@
-class GenerationCanceled(Exception):
-    pass
