@@ -97,7 +97,7 @@ jobs:
 
             - name: Plan Terraform ${{ matrix.working_dir }}
               if: github.ref != 'refs/heads/master'
-              uses: datadrivers/terragrunt-action@3297746d3dc1b0846cdf4c7816e8839eb4531e41 # v2.1.0
+              uses: datadrivers/terragrunt-action@97ba73a416f8f0ab2c870002b9739816f7987991 # v4.0.1
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   terraform-version: ${{ env.TERRAFORM_VERSION }}
@@ -118,7 +118,7 @@ jobs:
 
             - name: Apply Terraform ${{ matrix.working_dir }}
               if: github.ref == 'refs/heads/master'
-              uses: datadrivers/terragrunt-action@3297746d3dc1b0846cdf4c7816e8839eb4531e41 # v2.1.0
+              uses: datadrivers/terragrunt-action@97ba73a416f8f0ab2c870002b9739816f7987991 # v4.0.1
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   terraform-version: ${{ env.TERRAFORM_VERSION }}
