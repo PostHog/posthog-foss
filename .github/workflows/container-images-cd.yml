@@ -83,7 +83,7 @@ jobs:
 
             - name: report failure
               if: failure()
-              uses: PostHog/posthog-github-action@v0.1
+              uses: PostHog/posthog-github-action@v1
               with:
                   posthog-token: ${{secrets.POSTHOG_API_TOKEN}}
                   event: 'posthog-image-build'

@@ -260,7 +260,7 @@ jobs:
 
             - name: Capture running time to PostHog
               if: needs.changes.outputs.frontend == 'true'
-              uses: PostHog/posthog-github-action@v0.1
+              uses: PostHog/posthog-github-action@v1
               with:
                   posthog-token: ${{secrets.POSTHOG_API_TOKEN}}
                   event: 'posthog-ci-running-time'
