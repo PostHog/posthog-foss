@@ -18,6 +18,7 @@ packages:
     - services/mcp
     - services/stripe-app
     - tools/*
+    - '!tools/hedgebox-dummy'
     - rust/cyclotron-node
 
 catalog:
