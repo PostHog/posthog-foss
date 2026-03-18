@@ -13500,6 +13500,11 @@ export namespace Schemas {
       hogql?: string | null;
       /** @nullable */
       insight?: ExperimentQueryResponseInsightItem[] | null;
+      /**
+       * Whether exposures were served from the precomputation system
+       * @nullable
+       */
+      is_precomputed?: boolean | null;
       kind?: ExperimentQueryResponseKind;
       metric?: ExperimentMeanMetric | ExperimentFunnelMetric | ExperimentRatioMetric | ExperimentRetentionMetric | null;
       /** @nullable */
@@ -24773,6 +24778,11 @@ export namespace Schemas {
       hogql?: string | null;
       /** @nullable */
       insight?: QueryResponseAlternative20InsightItem[] | null;
+      /**
+       * Whether exposures were served from the precomputation system
+       * @nullable
+       */
+      is_precomputed?: boolean | null;
       kind?: QueryResponseAlternative20Kind;
       metric?: ExperimentMeanMetric | ExperimentFunnelMetric | ExperimentRatioMetric | ExperimentRetentionMetric | null;
       /** @nullable */
