@@ -24,23 +24,11 @@ jobs:
 
         steps:
             - uses: actions/checkout@v6
-              with:
-                  sparse-checkout: |
-                      rust/Cargo.toml
-                      rust/Cargo.lock
-                      rust/common/symbol_data/
-                  sparse-checkout-cone-mode: false
-                  clean: false
 
             - name: Install rust
               uses: dtolnay/rust-toolchain@0b1efabc08b657293548b77fb76cc02d26091c7e
               with:
                   toolchain: 1.91.1
-
-            - name: Install jq
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y jq
 
             - name: Verify tag matches crate version
               run: |
