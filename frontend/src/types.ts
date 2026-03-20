@@ -2185,6 +2185,7 @@ export interface DashboardTile<T = InsightModel> extends Tileable {
     id: number
     insight?: T
     text?: TextModel
+    button_tile?: ButtonTileModel
     deleted?: boolean
     is_cached?: boolean
     order?: number
@@ -2194,6 +2195,7 @@ export interface DashboardTile<T = InsightModel> extends Tileable {
     }
     filters_overrides?: TileFilters
     show_description?: boolean | null
+    transparent_background?: boolean | null
 }
 
 export interface DashboardTileBasicType {
@@ -2207,6 +2209,18 @@ export interface TextModel {
     created_by?: UserBasicType
     last_modified_by?: UserBasicType
     last_modified_at: string
+}
+
+export interface ButtonTileModel {
+    id?: number
+    url: string
+    text: string
+    placement: 'left' | 'right'
+    style: 'primary' | 'secondary'
+    created_by?: UserBasicType
+    last_modified_by?: UserBasicType
+    last_modified_at?: string
+    team?: number
 }
 
 export interface InsightModel extends Cacheable, WithAccessControl {
