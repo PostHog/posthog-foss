@@ -1,8 +1,9 @@
 # posthog-cli
 
-# 0.8.0
+# 0.7.3
 
 - feat: enable symbol set compression
+- fix: fix process command reading from stdin
 
 # 0.7.2
 
