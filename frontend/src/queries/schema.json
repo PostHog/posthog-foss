@@ -31654,6 +31654,9 @@
                     },
                     "type": "array"
                 },
+                "has_summary": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
