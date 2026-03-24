@@ -290,6 +290,7 @@ class ExternalDataSourceSerializers(UserAccessControlSerializerMixin, serializer
             "email_address",
             # hubspot
             "hubspot_integration_id",
+            "custom_properties",
             # snowflake
             "account_id",
             "warehouse",
