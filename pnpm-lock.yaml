@@ -649,6 +649,9 @@ importers:
       '@posthog/products-mcp-store':
         specifier: workspace:*
         version: link:../products/mcp_store
+      '@posthog/products-messaging':
+        specifier: workspace:*
+        version: link:../products/messaging
       '@posthog/products-metrics':
         specifier: workspace:*
         version: link:../products/metrics
@@ -2522,6 +2525,8 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
+
+  products/messaging: {}
 
   products/metrics:
     dependencies:
