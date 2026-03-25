@@ -14587,6 +14587,7 @@ export namespace Schemas {
        * @nullable
        */
       readonly user_access_level: string | null;
+      readonly supports_webhooks: boolean;
     }
 
     export type ExternalQueryErrorCode = typeof ExternalQueryErrorCode[keyof typeof ExternalQueryErrorCode];
@@ -22281,6 +22282,7 @@ export namespace Schemas {
        * @nullable
        */
       readonly user_access_level?: string | null;
+      readonly supports_webhooks?: boolean;
     }
 
     export interface PatchedFeatureFlagPartialUpdateRequestSchema {
