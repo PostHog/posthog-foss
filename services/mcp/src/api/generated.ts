@@ -19599,6 +19599,32 @@ export namespace Schemas {
       results: ProjectBackwardCompatBasic[];
     }
 
+    export interface ProjectSecretAPIKey {
+      readonly id: string;
+      /** @maxLength 40 */
+      label: string;
+      readonly value: string;
+      /** @nullable */
+      readonly mask_value: string | null;
+      readonly created_at: string;
+      /** @nullable */
+      readonly created_by: number | null;
+      /** @nullable */
+      readonly last_used_at: string | null;
+      /** @nullable */
+      readonly last_rolled_at: string | null;
+      scopes: string[];
+    }
+
+    export interface PaginatedProjectSecretAPIKeyList {
+      count: number;
+      /** @nullable */
+      next?: string | null;
+      /** @nullable */
+      previous?: string | null;
+      results: ProjectSecretAPIKey[];
+    }
+
     export interface QueryTabState {
       readonly id: string;
       /** 
@@ -23445,6 +23471,23 @@ export namespace Schemas {
       /** @nullable */
       proactive_tasks_enabled?: boolean | null;
       readonly available_setup_task_ids?: readonly AvailableSetupTaskIdsEnum[];
+    }
+
+    export interface PatchedProjectSecretAPIKey {
+      readonly id?: string;
+      /** @maxLength 40 */
+      label?: string;
+      readonly value?: string;
+      /** @nullable */
+      readonly mask_value?: string | null;
+      readonly created_at?: string;
+      /** @nullable */
+      readonly created_by?: number | null;
+      /** @nullable */
+      readonly last_used_at?: string | null;
+      /** @nullable */
+      readonly last_rolled_at?: string | null;
+      scopes?: string[];
     }
 
     export interface PatchedQueryTabState {
@@ -30720,6 +30763,17 @@ export namespace Schemas {
     offset?: number;
     };
 
+    export type EnvironmentsProjectSecretApiKeysListParams = {
+    /**
+     * Number of results to return per page.
+     */
+    limit?: number;
+    /**
+     * The initial index from which to return the results.
+     */
+    offset?: number;
+    };
+
     /**
      * Unspecified response body
      */
@@ -31751,6 +31805,7 @@ export namespace Schemas {
     * `TaggedItem` - TaggedItem
     * `Subscription` - Subscription
     * `PersonalAPIKey` - PersonalAPIKey
+    * `ProjectSecretAPIKey` - ProjectSecretAPIKey
     * `User` - User
     * `Action` - Action
     * `AlertConfiguration` - AlertConfiguration
@@ -31823,6 +31878,7 @@ export namespace Schemas {
       TaggedItem: 'TaggedItem',
       Subscription: 'Subscription',
       PersonalAPIKey: 'PersonalAPIKey',
+      ProjectSecretAPIKey: 'ProjectSecretAPIKey',
       User: 'User',
       Action: 'Action',
       AlertConfiguration: 'AlertConfiguration',
@@ -31881,6 +31937,7 @@ export namespace Schemas {
     * `TaggedItem` - TaggedItem
     * `Subscription` - Subscription
     * `PersonalAPIKey` - PersonalAPIKey
+    * `ProjectSecretAPIKey` - ProjectSecretAPIKey
     * `User` - User
     * `Action` - Action
     * `AlertConfiguration` - AlertConfiguration
@@ -31941,6 +31998,7 @@ export namespace Schemas {
       TaggedItem: 'TaggedItem',
       Subscription: 'Subscription',
       PersonalAPIKey: 'PersonalAPIKey',
+      ProjectSecretAPIKey: 'ProjectSecretAPIKey',
       User: 'User',
       Action: 'Action',
       AlertConfiguration: 'AlertConfiguration',
@@ -33750,6 +33808,17 @@ export namespace Schemas {
      * A search term.
      */
     search?: string;
+    };
+
+    export type ProjectSecretApiKeysListParams = {
+    /**
+     * Number of results to return per page.
+     */
+    limit?: number;
+    /**
+     * The initial index from which to return the results.
+     */
+    offset?: number;
     };
 
     export type PropertyDefinitionsListParams = {
