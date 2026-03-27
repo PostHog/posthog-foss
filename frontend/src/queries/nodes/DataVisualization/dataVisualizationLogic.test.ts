@@ -225,6 +225,47 @@ describe('dataVisualizationLogic', () => {
         })
     })
 
+    it.each([
+        {
+            displayType: ChartDisplayType.ActionsLineGraph,
+            name: 'line chart',
+        },
+        {
+            displayType: ChartDisplayType.ActionsAreaGraph,
+            name: 'area chart',
+        },
+    ])('uses the first numeric column as x-axis when enabling a $name on all-numeric data', async ({ displayType }) => {
+        dataNodeLogic({ key: testKey, query: defaultQuery.source, dataNodeCollectionId }).actions.setResponse({
+            columns: ['screen_width', 'screen_height'],
+            types: [
+                ['screen_width', 'Int64'],
+                ['screen_height', 'Int64'],
+            ],
+            results: [
+                [1920, 1080],
+                [1440, 900],
+            ],
+        })
+
+        logic.actions.setVisualizationType(displayType)
+
+        await expectLogic(logic).toMatchValues({
+            effectiveVisualizationType: displayType,
+            selectedXAxis: 'screen_width',
+            selectedYAxis: [
+                {
+                    name: 'screen_height',
+                    settings: {
+                        formatting: {
+                            prefix: '',
+                            suffix: '',
+                        },
+                    },
+                },
+            ],
+        })
+    })
+
     it('fills x-axis labels with empty values when no x-axis is selected', async () => {
         dataNodeLogic({ key: testKey, query: defaultQuery.source, dataNodeCollectionId }).actions.setResponse({
             columns: ['first_value', 'second_value', 'third_value'],
