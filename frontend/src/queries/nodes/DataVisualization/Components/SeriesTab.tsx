@@ -28,7 +28,6 @@ import { getAvailableSeriesBreakdownColumns } from './seriesBreakdownUtils'
 import { YSeriesLogicProps, YSeriesSettingsTab, ySeriesLogic } from './ySeriesLogic'
 
 export const SeriesTab = (): JSX.Element => {
-    const { effectiveVisualizationType } = useValues(dataVisualizationLogic)
     const {
         columns,
         numericalColumns,
@@ -36,12 +35,14 @@ export const SeriesTab = (): JSX.Element => {
         yData,
         responseLoading,
         showTableSettings,
-        tabularColumns,
+        sourceTabularColumns,
+        isTransposed,
         selectedXAxis,
         selectedYAxis,
         dataVisualizationProps,
+        effectiveVisualizationType,
     } = useValues(dataVisualizationLogic)
-    const { updateXSeries, addYSeries } = useActions(dataVisualizationLogic)
+    const { updateXSeries, addYSeries, setTransposeResults } = useActions(dataVisualizationLogic)
     const breakdownLogic = seriesBreakdownLogic({ key: dataVisualizationProps.key })
     const { selectedSeriesBreakdownColumn, showSeriesBreakdown } = useValues(breakdownLogic)
     const { addSeriesBreakdown } = useActions(breakdownLogic)
@@ -61,11 +62,22 @@ export const SeriesTab = (): JSX.Element => {
 
     if (showTableSettings) {
         return (
-            <div className="flex flex-col w-full p-3">
-                <LemonLabel>Columns</LemonLabel>
-                {tabularColumns.map((series, index) => (
-                    <YSeries series={series} index={index} key={`${series.column.name}-${index}`} />
-                ))}
+            <div className="flex flex-col w-full p-3 gap-4">
+                {effectiveVisualizationType === ChartDisplayType.ActionsTable && (
+                    <LemonSwitch
+                        className="flex-1 w-full"
+                        label="Transpose results"
+                        checked={isTransposed}
+                        onChange={setTransposeResults}
+                        tooltip="Rotate the table so rows become columns and columns become rows."
+                    />
+                )}
+                <div>
+                    <LemonLabel>Columns</LemonLabel>
+                    {sourceTabularColumns.map((series, index) => (
+                        <YSeries series={series} index={index} key={`${series.column.name}-${index}`} />
+                    ))}
+                </div>
             </div>
         )
     }

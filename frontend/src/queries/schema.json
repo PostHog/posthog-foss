@@ -33856,6 +33856,9 @@
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "transpose": {
+                    "type": "boolean"
                 }
             },
             "type": "object"
