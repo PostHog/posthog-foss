@@ -6,11 +6,13 @@ from pydantic import BaseModel
 from posthog.schema import (
     AssistantFunnelsQuery,
     AssistantHogQLQuery,
+    AssistantPathsQuery,
     AssistantRetentionQuery,
     AssistantStickinessQuery,
     AssistantTrendsQuery,
     FunnelsQuery,
     HogQLQuery,
+    PathsQuery,
     RetentionQuery,
     RevenueAnalyticsGrossRevenueQuery,
     RevenueAnalyticsMetricsQuery,
@@ -21,6 +23,7 @@ from posthog.schema import (
 )
 
 from .funnel import FunnelResultsFormatter
+from .paths import PathsResultsFormatter
 from .retention import RetentionResultsFormatter
 from .revenue_analytics import (
     RevenueAnalyticsGrossRevenueResultsFormatter,
@@ -55,6 +58,8 @@ def format_query_results_for_llm(
         return TrendsResultsFormatter(query, response["results"]).format()
     elif isinstance(query, AssistantFunnelsQuery | FunnelsQuery):
         return FunnelResultsFormatter(query, response["results"], team, utc_now).format()
+    elif isinstance(query, AssistantPathsQuery | PathsQuery):
+        return PathsResultsFormatter(response["results"]).format()
     elif isinstance(query, AssistantStickinessQuery | StickinessQuery):
         return StickinessResultsFormatter(query, response["results"]).format()
     elif isinstance(query, AssistantRetentionQuery | RetentionQuery):
@@ -75,6 +80,7 @@ def format_query_results_for_llm(
 
 __all__ = [
     "FunnelResultsFormatter",
+    "PathsResultsFormatter",
     "RetentionResultsFormatter",
     "SQLResultsFormatter",
     "StickinessResultsFormatter",
