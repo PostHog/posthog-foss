@@ -23300,6 +23300,20 @@ export namespace Schemas {
       readonly scim_bearer_token?: string | null;
     }
 
+    /**
+     * Serializer for organization-level integrations.
+     */
+    export interface PatchedOrganizationIntegration {
+      readonly id?: string;
+      readonly kind?: OrganizationIntegrationKindEnum;
+      /** @nullable */
+      readonly integration_id?: string | null;
+      readonly config?: unknown;
+      readonly created_at?: string;
+      readonly updated_at?: string;
+      readonly created_by?: UserBasic;
+    }
+
     export interface PatchedOrganizationMember {
       readonly id?: string;
       readonly user?: UserBasic;
