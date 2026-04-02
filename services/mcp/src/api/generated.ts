@@ -18068,7 +18068,6 @@ export namespace Schemas {
       auth_type: InstallCustomAuthTypeEnum;
       api_key?: string;
       description?: string;
-      oauth_provider_kind?: string;
       install_source?: InstallSourceEnum;
       posthog_code_callback_url?: string;
     }
@@ -20306,7 +20305,6 @@ export namespace Schemas {
       url: string;
       description: string;
       auth_type: RecommendedServerAuthTypeEnum;
-      oauth_provider_kind?: string;
     }
 
     export interface PaginatedRecommendedServerList {
