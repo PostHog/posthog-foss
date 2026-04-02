@@ -281,6 +281,7 @@ profile = "black"
 
 [tool.ruff]
 line-length = 120
+force-exclude = true
 exclude = [
     ".git",
     "./.semgrep",
