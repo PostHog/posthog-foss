@@ -688,6 +688,7 @@ class InternalHogFlowViewSet(TeamAndOrgViewSetMixin, LogEntryMixin, AppMetricsMi
         """
         from django.db import transaction
 
+        from products.workflows.backend.models.hog_flow_batch_job import HogFlowBatchJob
         from products.workflows.backend.models.hog_flow_schedule import HogFlowSchedule
         from products.workflows.backend.utils.rrule_utils import compute_next_occurrences
 
@@ -732,6 +733,7 @@ class InternalHogFlowViewSet(TeamAndOrgViewSetMixin, LogEntryMixin, AppMetricsMi
 
             for schedule_id in due_schedule_ids:
                 try:
+                    batch_job_params = None
                     with transaction.atomic():
                         # Per-schedule transaction: lock only one row at a time to minimize
                         # lock duration and allow concurrent replicas via skip_locked.
@@ -759,15 +761,21 @@ class InternalHogFlowViewSet(TeamAndOrgViewSetMixin, LogEntryMixin, AppMetricsMi
 
                         advance_next_run(schedule, after=schedule.next_run_at)
 
-                        processed.append(
-                            {
-                                "schedule_id": str(schedule.id),
-                                "team_id": schedule.team_id,
-                                "hog_flow_id": str(schedule.hog_flow_id),
-                                "filters": (hog_flow.trigger or {}).get("filters", {}),
-                                "variables": resolve_variables(hog_flow, schedule),
-                            }
+                        batch_job_params = {
+                            "team_id": schedule.team_id,
+                            "hog_flow": hog_flow,
+                            "variables": resolve_variables(hog_flow, schedule),
+                            "filters": (hog_flow.trigger or {}).get("filters", {}),
+                        }
+
+                    # Create the batch job outside the transaction so the
+                    # post_save signal's HTTP call doesn't hold the row lock.
+                    if batch_job_params:
+                        HogFlowBatchJob.objects.create(
+                            **batch_job_params,
+                            status=HogFlowBatchJob.State.QUEUED,
                         )
+                        processed.append(str(schedule_id))
                 except Exception:
                     logger.exception("Error processing schedule", schedule_id=str(schedule_id))
                     failed.append(str(schedule_id))
