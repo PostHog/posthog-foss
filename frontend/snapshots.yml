@@ -339,9 +339,9 @@ snapshots:
     components-errors-error-display--safari-script-error--light:
         hash: v1.k794b7964.e38444b23eba1c4e5491ad22cc50766413bba8d86066bad3ded5de5a24d7e180.-B8a9-rW8X90LyrV_-llXT0zKP9hBnBt21XrO4AuE84
     components-errors-error-display--sentry-stack-trace--dark:
-        hash: v1.k794b7964.e818bb924d72979f92f5f4fa9b91bd5a05e8a11cf38d935621f28d2746136555.uAKfZbq03sMHvf7r5uw90aVk6sDvD46UJaOt4uPHe5A
+        hash: v1.k794b7964.1cc6215628c012ffaab16be5fecc21fa0c1eb3253c3876327a9169ece59fed61.qHZfMlGjH5gbzYrnFUDFPAxaPhl3zNx4oQHMzWZyCxE
     components-errors-error-display--sentry-stack-trace--light:
-        hash: v1.k794b7964.5918296aff2b0001ece6984fc96032f677aee7e12112820f17f1cb1dcf9799c9.NhQn5Z9M98OSvEAwRHnvfKEebWIsg_mT6uqxF59Gcho
+        hash: v1.k794b7964.78eb9402e4668b77c1d884e20e0ce364f7defc6f146f0038a06bdc97f52deee5.IRusiN4U7qMSSM3DC7pEuWDBWg7wf5iX60vIMIBBbZQ
     components-errors-error-display--stack-trace-with-line-context--dark:
         hash: v1.k794b7964.53c4abf9f63457d7357d6d3553012300dd77ffbe852e647e50ea9bf009b8fcd8.quPu3Vl6_ORZ3qIv2fkd9qDhiMOViHaz_iNIix7w1zc
     components-errors-error-display--stack-trace-with-line-context--light:
