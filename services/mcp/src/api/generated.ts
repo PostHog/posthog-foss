@@ -19360,6 +19360,7 @@ export namespace Schemas {
     * `slack` - Slack
     * `support_queue` - Support Queue
     * `session_summaries` - Session Summaries
+    * `signal_report` - Signal Report
      */
     export type OriginProductEnum = typeof OriginProductEnum[keyof typeof OriginProductEnum];
 
@@ -19371,6 +19372,7 @@ export namespace Schemas {
       Slack: 'slack',
       SupportQueue: 'support_queue',
       SessionSummaries: 'session_summaries',
+      SignalReport: 'signal_report',
     } as const;
 
     export interface PaginatedActionList {
@@ -25388,6 +25390,8 @@ export namespace Schemas {
        * @nullable
        */
       github_integration?: number | null;
+      /** @nullable */
+      signal_report?: string | null;
       /** JSON schema for the task. This is used to validate the output of the task. */
       json_schema?: unknown | null;
       /** If true, this task is for internal use and should not be exposed to end users. */
