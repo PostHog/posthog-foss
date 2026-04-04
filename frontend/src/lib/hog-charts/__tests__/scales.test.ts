@@ -1,4 +1,4 @@
-import { autoFormatYTick, computePercentStackData, createXScale, createYScale } from '../core/scales'
+import { autoFormatYTick, computePercentStackData, computeStackData, createXScale, createYScale } from '../core/scales'
 import { dimensions, makeSeries } from '../test-helpers'
 
 describe('hog-charts scales', () => {
@@ -148,12 +148,15 @@ describe('hog-charts scales', () => {
             expect(result.size).toBe(0)
         })
 
-        it('normalizes a single series so each value equals 1.0', () => {
+        it('normalizes a single series so each top value equals 1.0', () => {
             const series = [makeSeries({ key: 's1', data: [10, 50, 200] })]
             const result = computePercentStackData(series, ['a', 'b', 'c'])
-            const values = result.get('s1')!
-            for (const v of values) {
+            const band = result.get('s1')!
+            for (const v of band.top) {
                 expect(v).toBeCloseTo(1, 5)
+            }
+            for (const v of band.bottom) {
+                expect(v).toBeCloseTo(0, 5)
             }
         })
 
@@ -161,8 +164,8 @@ describe('hog-charts scales', () => {
             const s1 = makeSeries({ key: 's1', data: [30, 70] })
             const s2 = makeSeries({ key: 's2', data: [70, 30] })
             const result = computePercentStackData([s1, s2], ['a', 'b'])
-            const s2Values = result.get('s2')!
-            for (const v of s2Values) {
+            const s2Band = result.get('s2')!
+            for (const v of s2Band.top) {
                 expect(v).toBeCloseTo(1, 5)
             }
         })
@@ -173,8 +176,8 @@ describe('hog-charts scales', () => {
             const result = computePercentStackData([visible, hidden], ['a', 'b'])
             expect(result.has('h')).toBe(false)
             expect(result.has('v')).toBe(true)
-            const values = result.get('v')!
-            for (const v of values) {
+            const band = result.get('v')!
+            for (const v of band.top) {
                 expect(v).toBeCloseTo(1, 5)
             }
         })
@@ -184,12 +187,78 @@ describe('hog-charts scales', () => {
             const result = computePercentStackData(series, ['a', 'b'])
             // at index 0, s1 is treated as 0 so s2 contributes 100%
             const s2 = result.get('s2')!
-            expect(s2[0]).toBeCloseTo(1, 5)
+            expect(s2.top[0]).toBeCloseTo(1, 5)
         })
 
         it('handles all-zero data without throwing', () => {
             const series = [makeSeries({ key: 's1', data: [0, 0] })]
             expect(() => computePercentStackData(series, ['a', 'b'])).not.toThrow()
+        })
+    })
+
+    describe('computeStackData', () => {
+        it('returns an empty map when there are no series', () => {
+            const result = computeStackData([], ['a', 'b'])
+            expect(result.size).toBe(0)
+        })
+
+        it('returns an empty map when all series are hidden', () => {
+            const series = [makeSeries({ key: 's1', data: [10, 20], hidden: true })]
+            const result = computeStackData(series, ['a', 'b'])
+            expect(result.size).toBe(0)
+        })
+
+        it('first series has bottom values of zero', () => {
+            const series = [makeSeries({ key: 's1', data: [10, 20] })]
+            const result = computeStackData(series, ['a', 'b'])
+            const band = result.get('s1')!
+            expect(band.top).toEqual([10, 20])
+            expect(band.bottom).toEqual([0, 0])
+        })
+
+        it('stacks two series so second sits on top of first', () => {
+            const s1 = makeSeries({ key: 's1', data: [10, 20] })
+            const s2 = makeSeries({ key: 's2', data: [5, 15] })
+            const result = computeStackData([s1, s2], ['a', 'b'])
+
+            const band1 = result.get('s1')!
+            expect(band1.top).toEqual([10, 20])
+            expect(band1.bottom).toEqual([0, 0])
+
+            const band2 = result.get('s2')!
+            expect(band2.top).toEqual([15, 35])
+            expect(band2.bottom).toEqual([10, 20])
+        })
+
+        it('stacks three series cumulatively', () => {
+            const s1 = makeSeries({ key: 's1', data: [10] })
+            const s2 = makeSeries({ key: 's2', data: [20] })
+            const s3 = makeSeries({ key: 's3', data: [30] })
+            const result = computeStackData([s1, s2, s3], ['a'])
+
+            expect(result.get('s1')!.top).toEqual([10])
+            expect(result.get('s2')!.top).toEqual([30])
+            expect(result.get('s2')!.bottom).toEqual([10])
+            expect(result.get('s3')!.top).toEqual([60])
+            expect(result.get('s3')!.bottom).toEqual([30])
+        })
+
+        it('excludes hidden series from the stack', () => {
+            const visible = makeSeries({ key: 'v', data: [10, 20] })
+            const hidden = makeSeries({ key: 'h', data: [100, 200], hidden: true })
+            const result = computeStackData([visible, hidden], ['a', 'b'])
+            expect(result.has('h')).toBe(false)
+            expect(result.get('v')!.top).toEqual([10, 20])
+        })
+
+        it('clamps negative values to 0', () => {
+            const s1 = makeSeries({ key: 's1', data: [-10, 20] })
+            const s2 = makeSeries({ key: 's2', data: [30, 10] })
+            const result = computeStackData([s1, s2], ['a', 'b'])
+            // s1 negative clamped to 0
+            expect(result.get('s1')!.top).toEqual([0, 20])
+            expect(result.get('s2')!.bottom).toEqual([0, 20])
+            expect(result.get('s2')!.top).toEqual([30, 30])
         })
     })
 
@@ -202,6 +271,13 @@ describe('hog-charts scales', () => {
             { domainMax: 4.99, value: 2.7, expected: '2.7', label: 'one decimal place when domainMax is 4.99' },
             { domainMax: 5, value: 42, expected: '42', label: 'no decimal places when domainMax equals 5' },
             { domainMax: 1000, value: 999, expected: '999', label: 'no decimal places when domainMax is large' },
+            { domainMax: 10000, value: 1234, expected: '1,234', label: 'adds thousands separator' },
+            {
+                domainMax: 1000000,
+                value: 123456,
+                expected: '123,456',
+                label: 'adds thousands separators for large values',
+            },
         ])('returns $expected: $label', ({ domainMax, value, expected }) => {
             expect(autoFormatYTick(value, domainMax)).toBe(expected)
         })
