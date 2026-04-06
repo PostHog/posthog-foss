@@ -2384,6 +2384,8 @@ export namespace Schemas {
       detailedResultsAggregationType?: DetailedResultsAggregationType | null;
       display?: ChartDisplayType | null;
       /** @nullable */
+      excludeBoxPlotOutliers?: boolean | null;
+      /** @nullable */
       formula?: string | null;
       /**
        * List of formulas with optional custom names. Takes precedence over formula/formulas if set.

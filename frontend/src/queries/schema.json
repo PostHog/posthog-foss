@@ -35751,6 +35751,10 @@
                     "$ref": "#/definitions/ChartDisplayType",
                     "default": "ActionsLineGraph"
                 },
+                "excludeBoxPlotOutliers": {
+                    "default": true,
+                    "type": "boolean"
+                },
                 "formula": {
                     "deprecated": "Use formulaNodes instead.",
                     "type": "string"
