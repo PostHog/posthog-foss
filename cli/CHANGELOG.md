@@ -2,11 +2,9 @@
 
 # 0.7.5
 
-- fix(cymbal): prefer arm64 slice when building symcache from fat dSYM
-- fix(cli): stable source bundle for dSYM uploads — CU-anchored prefix filter
-- fix(cli): thin fat dSYM binaries per arch before zipping
-- fix(cymbal): basename fallback for cross-file inlined frames (Swift WMO)
-- fix(api): allow re-upload of symbol sets with no existing content hash
+- fix: stable source bundle for dSYM uploads — CU-anchored prefix filter prevents framework sources from changing the content hash
+- fix: thin fat dSYM binaries per arch before zipping so sibling arch rebuilds don't cause content_hash_mismatch
+- fix: add `--force` flag to allow overwriting symbol sets whose content has changed
 
 # 0.7.4
 
