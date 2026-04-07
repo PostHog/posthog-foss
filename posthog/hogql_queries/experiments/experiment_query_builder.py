@@ -1357,6 +1357,11 @@ class ExperimentQueryBuilder:
         # Note: uses < for time_window_max (exclusive end for bucket boundaries)
         # vs <= in normal query (inclusive end for experiment boundary)
         # Keep in sync with _build_exposure_select_query
+        #
+        # The time_window_min/max placeholders define the job's cache window
+        # (UTC-day-aligned). The experiment_date_from/to placeholders tighten
+        # the scan to the actual experiment dates so that variant aggregation
+        # only considers events within the experiment.
         query_string = """
             SELECT
                 {entity_key} AS entity_id,
@@ -1369,6 +1374,8 @@ class ExperimentQueryBuilder:
             FROM events
             WHERE timestamp >= {time_window_min}
                 AND timestamp < {time_window_max}
+                AND timestamp >= {experiment_date_from}
+                AND timestamp <= {experiment_date_to}
                 AND {event_predicate}
                 AND {test_accounts_filter}
                 AND {variant_property} IN {variants}
@@ -1382,6 +1389,8 @@ class ExperimentQueryBuilder:
             "test_accounts_filter": self._build_test_accounts_filter(),
             "variant_property": self._build_variant_property(),
             "variants": ast.Constant(value=self.variants),
+            "experiment_date_from": self.date_range_query.date_from_as_hogql(),
+            "experiment_date_to": self.date_range_query.date_to_as_hogql(),
         }
 
         return query_string, placeholders
