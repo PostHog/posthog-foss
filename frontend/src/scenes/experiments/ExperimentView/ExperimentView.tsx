@@ -17,7 +17,6 @@ import {
     LegacyExploreButton,
     LegacyExperimentHeader,
     LegacyMetricsView,
-    LegacyVariantDeltaTimeseries,
 } from '~/scenes/experiments/legacy'
 import { ActivityScope } from '~/types'
 
@@ -35,6 +34,7 @@ import { ExperimentImplementationDetails } from '../ExperimentImplementationDeta
 import { experimentLogic } from '../experimentLogic'
 import type { ExperimentSceneLogicProps } from '../experimentSceneLogic'
 import { experimentSceneLogic } from '../experimentSceneLogic'
+import { LegacyEditConclusionModal } from '../legacy/LegacyEditConclusionModal'
 import { ExperimentMetricModal } from '../Metrics/ExperimentMetricModal'
 import { experimentMetricModalLogic } from '../Metrics/experimentMetricModalLogic'
 import { MetricSourceModal } from '../Metrics/MetricSourceModal'
@@ -428,8 +428,7 @@ export function ExperimentView({ tabId }: Pick<ExperimentSceneLogicProps, 'tabId
                     <ReleaseConditionsModal />
 
                     <EditConclusionModal />
-
-                    <LegacyVariantDeltaTimeseries />
+                    <LegacyEditConclusionModal />
                 </>
             )}
         </SceneContent>
