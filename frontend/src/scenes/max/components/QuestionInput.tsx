@@ -213,7 +213,7 @@ export const QuestionInput = React.forwardRef<HTMLDivElement, QuestionInputProps
             <div
                 className={clsx(
                     'flex flex-col items-center',
-                    isSticky && 'mb-2 border border-primary rounded-lg backdrop-blur-sm bg-glass-bg-3000'
+                    isSticky && 'border border-primary rounded-lg backdrop-blur-sm bg-glass-bg-3000'
                 )}
             >
                 {/* Have to increase z-index to overlay ToolsDisplay */}
@@ -447,9 +447,6 @@ export const QuestionInput = React.forwardRef<HTMLDivElement, QuestionInputProps
                     </div>
                 )}
             </div>
-            <p className="w-full flex text-xs text-muted mt-1">
-                <span className="mx-auto">PostHog AI can make mistakes. Please double-check responses.</span>
-            </p>
         </div>
     )
 })
