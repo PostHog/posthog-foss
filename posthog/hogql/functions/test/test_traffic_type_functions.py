@@ -2,13 +2,14 @@ import pytest
 
 from posthog.hogql import ast
 from posthog.hogql.functions.traffic_type import (
-    BOT_DEFINITIONS,
     get_bot_name,
     get_bot_type,
     get_traffic_category,
     get_traffic_type,
     is_bot,
 )
+
+from posthog.hogql_queries.web_analytics.bot_definitions import BOT_DEFINITIONS
 
 
 class TestTrafficTypeFunctions:
