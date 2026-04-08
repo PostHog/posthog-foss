@@ -560,7 +560,7 @@ def _exchange_authorization_code(request: Request) -> Response:
             "expires_in": ACCESS_TOKEN_EXPIRY_SECONDS,
             "account": {
                 "id": account_id,
-                "payment_credentials": "provider",
+                "payment_credentials": "orchestrator",
             },
         }
     )
@@ -619,6 +619,58 @@ def _exchange_refresh_token(request: Request) -> Response:
             "expires_in": ACCESS_TOKEN_EXPIRY_SECONDS,
         }
     )
+
+
+def _activate_billing_with_spt(team: Team, user: User, spt_token: str) -> bool:
+    """Call the billing service to activate a subscription with a Stripe Shared Payment Token.
+
+    Returns True if activation succeeded, False otherwise.
+    """
+    try:
+        from posthog.cloud_utils import get_cached_instance_license
+
+        from ee.billing.billing_manager import build_billing_token
+
+        license = get_cached_instance_license()
+        if not license:
+            capture_exception(Exception("No license found for SPT billing activation"))
+            return False
+
+        organization = team.organization
+        billing_token = build_billing_token(license, organization, user)
+
+        res = requests.post(
+            f"{BILLING_SERVICE_URL}/api/activate/authorize",
+            headers={"Authorization": f"Bearer {billing_token}"},
+            json={"shared_payment_token": spt_token},
+            timeout=30,
+        )
+
+        if res.status_code not in (200, 201):
+            capture_exception(
+                Exception(f"Billing SPT activation failed: {res.status_code}"),
+                {"team_id": team.id, "org_id": str(organization.id), "status": res.status_code},
+            )
+            return False
+
+        logger.info("stripe_app.spt_billing_activated", team_id=team.id, org_id=str(organization.id))
+        return True
+    except Exception:
+        capture_exception(additional_properties={"team_id": team.id, "org_id": str(team.organization_id)})
+        return False
+
+
+def _try_activate_billing_with_spt(request: Request, team: Team, user: User) -> bool | None:
+    """Try to activate billing with an SPT from payment_credentials.
+
+    Returns True if succeeded, False if failed, None if no SPT was present.
+    """
+    payment_credentials = request.data.get("payment_credentials")
+    if isinstance(payment_credentials, dict) and payment_credentials.get("type") == "stripe_payment_token":
+        spt_token = payment_credentials.get("stripe_payment_token")
+        if spt_token:
+            return _activate_billing_with_spt(team, user, spt_token)
+    return None
 
 
 def _create_provisioned_pat(user: User, team: Team) -> str | None:
@@ -680,6 +732,20 @@ def provisioning_resources_create(request: Request) -> Response:
 
     resolved_service_id = service_id or ANALYTICS_SERVICE_ID
     cache.set(f"{RESOURCE_SERVICE_CACHE_PREFIX}{team_id}", resolved_service_id, timeout=None)
+
+    billing_result = _try_activate_billing_with_spt(request, team, user)
+    if billing_result is False:
+        return Response(
+            {
+                "status": "error",
+                "id": str(team_id),
+                "error": {
+                    "code": "requires_payment_credentials",
+                    "message": "Billing activation failed",
+                },
+            },
+            status=400,
+        )
 
     region = get_instance_region() or "US"
     host = _region_to_host(region)
