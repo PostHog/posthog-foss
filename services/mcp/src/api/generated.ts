@@ -6683,6 +6683,28 @@ export namespace Schemas {
       explicit_datetime?: string | null;
     }
 
+    export interface BlastRadius {
+      /** Number of users matching the filters */
+      affected: number;
+      /** Total number of users */
+      total: number;
+    }
+
+    /**
+     * Property filters to apply
+     */
+    export type BlastRadiusRequestFilters = {[key: string]: unknown};
+
+    export interface BlastRadiusRequest {
+      /** Property filters to apply */
+      filters: BlastRadiusRequestFilters;
+      /**
+       * Group type index for group-based targeting
+       * @nullable
+       */
+      group_type_index?: number | null;
+    }
+
     export interface BooleanScoreDefinitionConfig {
       /** Optional label for a true value. */
       true_label?: string;
