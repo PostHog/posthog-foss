@@ -1,3 +1,5 @@
+// Output names shared across pipelines
+
 export const EVENTS_OUTPUT = 'events' as const
 export type EventOutput = typeof EVENTS_OUTPUT
 
@@ -21,3 +23,18 @@ export type LogEntriesOutput = typeof LOG_ENTRIES_OUTPUT
 
 export const TOPHOG_OUTPUT = 'tophog' as const
 export type TophogOutput = typeof TOPHOG_OUTPUT
+
+// Producer names
+
+/**
+ * DEFAULT uses the existing KAFKA_PRODUCER_* env vars — backwards compatible
+ * with all existing deployments including dev and hobby.
+ */
+export const DEFAULT_PRODUCER = 'DEFAULT' as const
+export type DefaultProducer = typeof DEFAULT_PRODUCER
+
+export const WARPSTREAM_PRODUCER = 'WARPSTREAM' as const
+export type WarpstreamProducer = typeof WARPSTREAM_PRODUCER
+
+/** Union of all known producer names. Extend this as new producers are added. */
+export type ProducerName = DefaultProducer | WarpstreamProducer
