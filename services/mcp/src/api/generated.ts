@@ -7081,6 +7081,20 @@ export namespace Schemas {
       Transactional: 'transactional',
     } as const;
 
+    /**
+     * * `consolidated` - consolidated
+    * `cdc_only` - cdc_only
+    * `both` - both
+     */
+    export type CdcTableModeEnum = typeof CdcTableModeEnum[keyof typeof CdcTableModeEnum];
+
+
+    export const CdcTableModeEnum = {
+      Consolidated: 'consolidated',
+      CdcOnly: 'cdc_only',
+      Both: 'both',
+    } as const;
+
     export type ChangeRequestApprovalsItem = {[key: string]: unknown};
 
     /**
@@ -14952,6 +14966,7 @@ export namespace Schemas {
       Incremental: 'incremental',
       Append: 'append',
       Webhook: 'webhook',
+      Cdc: 'cdc',
     } as const;
 
     export interface ExternalDataSchema {
@@ -14983,6 +14998,7 @@ export namespace Schemas {
       readonly sync_time_of_day: string | null;
       /** @nullable */
       readonly description: string | null;
+      readonly cdc_table_mode: CdcTableModeEnum;
     }
 
     export interface ExternalDataSourceConnectionOption {
@@ -23728,6 +23744,7 @@ export namespace Schemas {
       readonly sync_time_of_day?: string | null;
       /** @nullable */
       readonly description?: string | null;
+      readonly cdc_table_mode?: CdcTableModeEnum;
     }
 
     export type PatchedExternalDataSourceSerializersSchemasItem = {[key: string]: unknown};
