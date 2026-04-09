@@ -5734,6 +5734,10 @@ snapshots:
         hash: v1.k794b7964.1f35cbe9eb47f25e965cdc5645499b206509388545f7988627528d8fc8e59b4c.eppA72FhL12k_PU00-raJVo5r-EsdrO43dVUdU8ITZw
     scenes-app-sidepanels--side-panel-welcome--light:
         hash: v1.k794b7964.94515c028519ca328d7f10867f3a3881ce1db7624a20aca31dd39993b20987ee.OLvLbmZPhYElLd6wbNgBt1k68qKJUTkDkFNciMfoqqM
+    scenes-app-subscriptions-subscriptionstable--default--dark:
+        hash: v1.k794b7964.8469e1367634e150f7bc8b6b95e345ad0e045efbb5ed87500477b08bc0903f30.FRKqhIQ09KIxmv0ff9FX_OqdYH1_z1LUOuX0y7qL3Aw
+    scenes-app-subscriptions-subscriptionstable--default--light:
+        hash: v1.k794b7964.7d56cc77e7f8de3e9426a05cc312d88793c06ad27b4f92621bf611b62ae77311.HEW_ANuoQiXdg3T9xXmsiyi83fx9Wgk1lLVklpK7vIk
     scenes-app-surveys--new-multi-question-survey-section--dark:
         hash: v1.k794b7964.527c24dfc74e8aa6784868f5734e734fe5dd4084d90aa0ae5136450cc964a2d1.zI-hi-1MdMVqx2VdQr0Blbh8cRw2Vqm-U9wdeu6YSgo
     scenes-app-surveys--new-multi-question-survey-section--light:

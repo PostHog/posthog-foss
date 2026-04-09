@@ -21428,6 +21428,10 @@ export namespace Schemas {
       dashboard?: number | null;
       /** @nullable */
       insight?: number | null;
+      /** @nullable */
+      readonly insight_short_id: string | null;
+      /** @nullable */
+      readonly resource_name: string | null;
       dashboard_export_insights?: number[];
       target_type: TargetTypeEnum;
       target_value: string;
@@ -25173,6 +25177,10 @@ export namespace Schemas {
       dashboard?: number | null;
       /** @nullable */
       insight?: number | null;
+      /** @nullable */
+      readonly insight_short_id?: string | null;
+      /** @nullable */
+      readonly resource_name?: string | null;
       dashboard_export_insights?: number[];
       target_type?: TargetTypeEnum;
       target_value?: string;
@@ -32723,6 +32731,10 @@ export namespace Schemas {
 
     export type EnvironmentsSubscriptionsListParams = {
     /**
+     * Filter by creator user UUID.
+     */
+    created_by?: string;
+    /**
      * Number of results to return per page.
      */
     limit?: number;
@@ -32730,7 +32742,40 @@ export namespace Schemas {
      * The initial index from which to return the results.
      */
     offset?: number;
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * Filter by subscription resource: insight vs dashboard export.
+     */
+    resource_type?: EnvironmentsSubscriptionsListResourceType;
+    /**
+     * A search term.
+     */
+    search?: string;
+    /**
+     * Filter by delivery channel (email, Slack, or webhook).
+     */
+    target_type?: EnvironmentsSubscriptionsListTargetType;
     };
+
+    export type EnvironmentsSubscriptionsListResourceType = typeof EnvironmentsSubscriptionsListResourceType[keyof typeof EnvironmentsSubscriptionsListResourceType];
+
+
+    export const EnvironmentsSubscriptionsListResourceType = {
+      Dashboard: 'dashboard',
+      Insight: 'insight',
+    } as const;
+
+    export type EnvironmentsSubscriptionsListTargetType = typeof EnvironmentsSubscriptionsListTargetType[keyof typeof EnvironmentsSubscriptionsListTargetType];
+
+
+    export const EnvironmentsSubscriptionsListTargetType = {
+      Email: 'email',
+      Slack: 'slack',
+      Webhook: 'webhook',
+    } as const;
 
     export type EnvironmentsUserProductListListParams = {
     /**
@@ -36139,6 +36184,10 @@ export namespace Schemas {
 
     export type SubscriptionsListParams = {
     /**
+     * Filter by creator user UUID.
+     */
+    created_by?: string;
+    /**
      * Number of results to return per page.
      */
     limit?: number;
@@ -36146,7 +36195,40 @@ export namespace Schemas {
      * The initial index from which to return the results.
      */
     offset?: number;
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
+    /**
+     * Filter by subscription resource: insight vs dashboard export.
+     */
+    resource_type?: SubscriptionsListResourceType;
+    /**
+     * A search term.
+     */
+    search?: string;
+    /**
+     * Filter by delivery channel (email, Slack, or webhook).
+     */
+    target_type?: SubscriptionsListTargetType;
     };
+
+    export type SubscriptionsListResourceType = typeof SubscriptionsListResourceType[keyof typeof SubscriptionsListResourceType];
+
+
+    export const SubscriptionsListResourceType = {
+      Dashboard: 'dashboard',
+      Insight: 'insight',
+    } as const;
+
+    export type SubscriptionsListTargetType = typeof SubscriptionsListTargetType[keyof typeof SubscriptionsListTargetType];
+
+
+    export const SubscriptionsListTargetType = {
+      Email: 'email',
+      Slack: 'slack',
+      Webhook: 'webhook',
+    } as const;
 
     export type SurveysListParams = {
     archived?: boolean;
