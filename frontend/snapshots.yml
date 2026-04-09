@@ -5786,6 +5786,22 @@ snapshots:
         hash: v1.k794b7964.68bb54d3385db6e53cf87d8a60680585164379a3aade12919b0632a7a719313b.ZxDMd1vrILjKy-uWoFHwl7DdAeyydI-iafrgEP_KYHc
     scenes-app-surveys--surveys-list--light:
         hash: v1.k794b7964.e33e9aa39dc1a52350ef2acc09318202d3f7ee60c48dcafd6004d781395be32d.dmUgbPYKzKnlCbK22md8h30JGZKMd_fhQZdBeyCorGI
+    scenes-app-surveys-surveyresponsekeysreference--discord--dark:
+        hash: v1.k794b7964.8e5bc617248abb8113e4411dd7b8521e8569004499f303b15f62ef0388832d93.pzNm-bxGmzHCpHw3WwmBgIfkegcjKprhU-WYiBIh2Jk
+    scenes-app-surveys-surveyresponsekeysreference--discord--light:
+        hash: v1.k794b7964.8590f053bb359fef960eaf76d87307863aba002b8dffc44688116e12bb1445d7.2dKNO-Jg2Ol20FBHJh8Q2UBAlABhygPItUZUmTA4xNo
+    scenes-app-surveys-surveyresponsekeysreference--microsoft-teams--dark:
+        hash: v1.k794b7964.018daa28da8577300cd14c33f9ae2bfa2d8cd5d8f7be44490d264005a48c6f9b.XwotZ4nLMXkT-RslLlH2hGHpWFRlkeyYZrjA7I7RjzY
+    scenes-app-surveys-surveyresponsekeysreference--microsoft-teams--light:
+        hash: v1.k794b7964.97d19dbe071f57470358a113fa7b5bf14f095974381a159e7a8b08e6e8bfcc2b.MhbcicsXs2teQHdh9kGrFapwPle10UZXR5eB6TNySlI
+    scenes-app-surveys-surveyresponsekeysreference--slack--dark:
+        hash: v1.k794b7964.43d8809b1d09714d14e7ca9498ee69eaa7527c3200f63d7cc5c7278a4fbd6a98.tGEFCzMWz9vbZR7CmcW3AZlSTXrsxU3BktFoqPPqvIk
+    scenes-app-surveys-surveyresponsekeysreference--slack--light:
+        hash: v1.k794b7964.82a34efe305bcf9eb0922d282dc4772fc531ec7b0d55423f68b491620b958dd4.cn1poQJCeiII60dgzysBFur0FgOlGIAiLzXHbEg_-0c
+    scenes-app-surveys-surveyresponsekeysreference--webhook--dark:
+        hash: v1.k794b7964.9a526e358aa0cfddc4f81e1e0828b4b6cc43951bbd8a6e1901277fc46a23a46d.vyMDENMy3FlR-8KipQjGADTYhzlMznXCHCiLqoNAvqE
+    scenes-app-surveys-surveyresponsekeysreference--webhook--light:
+        hash: v1.k794b7964.d5821fd0bda0b7ae2eaf271d365c89c0ee82524408b39060ff99f276f9e3edd4.NSWi_hl_Kh5jphYDnaz8W0nHSZGp12SMTCQLj3NOyN0
     scenes-app-web-analytics--web-analytics-dashboard--dark:
         hash: v1.k794b7964.f5fd41ad9eaf7534363f9b2ec38467dab21c90a57136adb36938679c9bc1b748.-kY2tNZeOdnnHxzE4pdyi0j1DXIfdQ86Ysl7qd9mxjQ
     scenes-app-web-analytics--web-analytics-dashboard--light:
