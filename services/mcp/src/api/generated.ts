@@ -11591,6 +11591,11 @@ export namespace Schemas {
        */
       useQueryV2?: boolean | null;
       /**
+       * Use V3 query path (denormalized ClickHouse table, no Postgres joins)
+       * @nullable
+       */
+      useQueryV3?: boolean | null;
+      /**
        * version of the node, used for schema migrations
        * @nullable
        */
