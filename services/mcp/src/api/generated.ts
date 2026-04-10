@@ -36470,6 +36470,11 @@ export namespace Schemas {
      * @maximum 5000
      */
     limit?: number;
+    /**
+     * Zero-based offset into the filtered log entries
+     * @minimum 0
+     */
+    offset?: number;
     };
 
     export type TasksRepositoryReadinessRetrieveParams = {
