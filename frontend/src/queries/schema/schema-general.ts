@@ -955,7 +955,7 @@ export interface SessionsQuery extends DataNode<SessionsQueryResponse> {
      * Filter sessions by action - sessions that contain events matching this action
      */
     actionId?: integer
-    /** Event property filters - only applies when event or actionId is set */
+    /** Event property filters - filters sessions that contain events matching these properties */
     eventProperties?: AnyPropertyFilter[]
 }
 
