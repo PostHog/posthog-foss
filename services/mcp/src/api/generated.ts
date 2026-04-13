@@ -7886,10 +7886,10 @@ export namespace Schemas {
     * `stopped_early` - stopped_early
     * `invalid` - invalid
      */
-    export type ConclusionF33Enum = typeof ConclusionF33Enum[keyof typeof ConclusionF33Enum];
+    export type ConclusionEnum = typeof ConclusionEnum[keyof typeof ConclusionEnum];
 
 
-    export const ConclusionF33Enum = {
+    export const ConclusionEnum = {
       Won: 'won',
       Lost: 'lost',
       Inconclusive: 'inconclusive',
@@ -13435,7 +13435,7 @@ export namespace Schemas {
     * `inconclusive` - inconclusive
     * `stopped_early` - stopped_early
     * `invalid` - invalid */
-      conclusion?: ConclusionF33Enum | NullEnum | null;
+      conclusion?: ConclusionEnum | NullEnum | null;
       /**
        * Optional comment about the experiment conclusion.
        * @nullable
@@ -14763,6 +14763,31 @@ export namespace Schemas {
       readonly updated_at: string;
     }
 
+    export interface ExperimentVariant {
+      /** Variant key, e.g. 'control', 'test', 'variant_a'. */
+      key: string;
+      /**
+       * Human-readable variant name.
+       * @nullable
+       */
+      name?: string | null;
+      /** Percentage of users assigned to this variant (0–100). All variants must sum to 100. */
+      rollout_percentage: number;
+    }
+
+    export interface ExperimentParameters {
+      /**
+       * Experiment variants. If not specified, defaults to a 50/50 control/test split.
+       * @nullable
+       */
+      feature_flag_variants?: ExperimentVariant[] | null;
+      /**
+       * Minimum detectable effect as a percentage. Lower values need more users but catch smaller changes. Suggest 20–30% for most experiments.
+       * @nullable
+       */
+      minimum_detectable_effect?: number | null;
+    }
+
     export interface ExperimentToSavedMetric {
       readonly id: number;
       experiment: number;
@@ -14785,23 +14810,118 @@ export namespace Schemas {
       Product: 'product',
     } as const;
 
-    /**
-     * * `won` - Won
-    * `lost` - Lost
-    * `inconclusive` - Inconclusive
-    * `stopped_early` - Stopped Early
-    * `invalid` - Invalid
-     */
-    export type ExperimentConclusionEnum = typeof ExperimentConclusionEnum[keyof typeof ExperimentConclusionEnum];
+    export type ExperimentApiExposureConfigKind = typeof ExperimentApiExposureConfigKind[keyof typeof ExperimentApiExposureConfigKind];
 
 
-    export const ExperimentConclusionEnum = {
-      Won: 'won',
-      Lost: 'lost',
-      Inconclusive: 'inconclusive',
-      StoppedEarly: 'stopped_early',
-      Invalid: 'invalid',
+    export const ExperimentApiExposureConfigKind = {
+      ExperimentEventExposureConfig: 'ExperimentEventExposureConfig',
     } as const;
+
+    export interface ExperimentApiExposureConfig {
+      /** Custom exposure event name. */
+      event: string;
+      kind?: ExperimentApiExposureConfigKind;
+      /** Event property filters. Pass an empty array if no filters needed. */
+      properties: EventPropertyFilter[];
+    }
+
+    export interface ExperimentApiExposureCriteria {
+      exposure_config?: ExperimentApiExposureConfig | null;
+      /** @nullable */
+      filterTestAccounts?: boolean | null;
+    }
+
+    export type Kind = typeof Kind[keyof typeof Kind];
+
+
+    export const Kind = {
+      EventsNode: 'EventsNode',
+      ActionsNode: 'ActionsNode',
+    } as const;
+
+    export interface ExperimentApiEventSource {
+      /**
+       * Event name, e.g. '$pageview'. Required for EventsNode.
+       * @nullable
+       */
+      event?: string | null;
+      /**
+       * Action ID. Required for ActionsNode.
+       * @nullable
+       */
+      id?: number | null;
+      kind: Kind;
+      /**
+       * Event property filters to narrow which events are counted.
+       * @nullable
+       */
+      properties?: EventPropertyFilter[] | null;
+    }
+
+    export type ExperimentApiMetricKind = typeof ExperimentApiMetricKind[keyof typeof ExperimentApiMetricKind];
+
+
+    export const ExperimentApiMetricKind = {
+      ExperimentMetric: 'ExperimentMetric',
+    } as const;
+
+    export type ExperimentMetricType = typeof ExperimentMetricType[keyof typeof ExperimentMetricType];
+
+
+    export const ExperimentMetricType = {
+      Funnel: 'funnel',
+      Mean: 'mean',
+      Ratio: 'ratio',
+      Retention: 'retention',
+    } as const;
+
+    export interface ExperimentApiMetric {
+      /** For retention metrics: completion event. */
+      completion_event?: ExperimentApiEventSource | null;
+      /**
+       * Conversion window duration.
+       * @nullable
+       */
+      conversion_window?: number | null;
+      /** For ratio metrics: denominator source. */
+      denominator?: ExperimentApiEventSource | null;
+      /** Whether higher or lower values indicate success. */
+      goal?: ExperimentMetricGoal | null;
+      kind?: ExperimentApiMetricKind;
+      metric_type: ExperimentMetricType;
+      /**
+       * Human-readable metric name.
+       * @nullable
+       */
+      name?: string | null;
+      /** For ratio metrics: numerator source. */
+      numerator?: ExperimentApiEventSource | null;
+      /** @nullable */
+      retention_window_end?: number | null;
+      /** @nullable */
+      retention_window_start?: number | null;
+      retention_window_unit?: FunnelConversionWindowTimeUnit | null;
+      /**
+       * For funnel metrics: array of EventsNode/ActionsNode steps.
+       * @nullable
+       */
+      series?: ExperimentApiEventSource[] | null;
+      /** For mean metrics: event source. */
+      source?: ExperimentApiEventSource | null;
+      /** For retention metrics: start event. */
+      start_event?: ExperimentApiEventSource | null;
+      start_handling?: StartHandling | null;
+      /**
+       * Unique identifier. Auto-generated if omitted.
+       * @nullable
+       */
+      uuid?: string | null;
+    }
+
+    /**
+     * List wrapper for OpenAPI schema generation — the field stores an array of metrics.
+     */
+    export type _ExperimentApiMetricsList = ExperimentApiMetric[];
 
     /**
      * * `draft` - Draft
@@ -14822,9 +14942,13 @@ export namespace Schemas {
      */
     export interface Experiment {
       readonly id: number;
-      /** @maxLength 400 */
+      /**
+       * Name of the experiment.
+       * @maxLength 400
+       */
       name: string;
       /**
+       * Description of the experiment hypothesis and expected outcomes.
        * @maxLength 400
        * @nullable
        */
@@ -14833,35 +14957,61 @@ export namespace Schemas {
       start_date?: string | null;
       /** @nullable */
       end_date?: string | null;
+      /** Unique key for the experiment's feature flag. Letters, numbers, hyphens, and underscores only. Search existing flags with the feature-flags-get-all tool first — reuse an existing flag when possible. */
       feature_flag_key: string;
       readonly feature_flag: MinimalFeatureFlag;
       readonly holdout: ExperimentHoldout;
-      /** @nullable */
+      /**
+       * ID of a holdout group to exclude from the experiment.
+       * @nullable
+       */
       holdout_id?: number | null;
       /** @nullable */
       readonly exposure_cohort: number | null;
-      parameters?: unknown | null;
+      /** Variant definitions and statistical configuration. Set feature_flag_variants to customize the split (default: 50/50 control/test). Each variant needs a key and rollout_percentage; percentages must sum to 100. Set minimum_detectable_effect (percentage, suggest 20-30) to control statistical power. */
+      parameters?: ExperimentParameters | null;
       secondary_metrics?: unknown | null;
       readonly saved_metrics: readonly ExperimentToSavedMetric[];
-      /** @nullable */
+      /**
+       * IDs of shared saved metrics to attach to this experiment. Each item has 'id' (saved metric ID) and 'metadata' with 'type' (primary or secondary).
+       * @nullable
+       */
       saved_metrics_ids?: unknown[] | null;
       filters?: unknown;
+      /** Whether the experiment is archived. */
       archived?: boolean;
       /** @nullable */
       deleted?: boolean | null;
       readonly created_by: UserBasic;
       readonly created_at: string;
       readonly updated_at: string;
-      type?: ExperimentTypeEnum | BlankEnum | NullEnum | null;
-      exposure_criteria?: unknown | null;
-      metrics?: unknown | null;
-      metrics_secondary?: unknown | null;
+      /** Experiment type: web for frontend UI changes, product for backend/API changes.
+
+    * `web` - web
+    * `product` - product */
+      type?: ExperimentTypeEnum | NullEnum | null;
+      /** Exposure configuration including filter test accounts and custom exposure events. */
+      exposure_criteria?: ExperimentApiExposureCriteria | null;
+      /** Primary experiment metrics. Each metric must have kind='ExperimentMetric' and a metric_type: 'mean' (set source to an EventsNode with an event name), 'funnel' (set series to an array of EventsNode steps), 'ratio' (set numerator and denominator EventsNode entries), or 'retention' (set start_event and completion_event). Use the event-definitions-list tool to find available events in the project. */
+      metrics?: _ExperimentApiMetricsList | null;
+      /** Secondary metrics for additional measurements. Same format as primary metrics. */
+      metrics_secondary?: _ExperimentApiMetricsList | null;
       stats_config?: unknown | null;
       scheduling_config?: unknown | null;
       allow_unknown_events?: boolean;
       _create_in_folder?: string;
-      conclusion?: ExperimentConclusionEnum | BlankEnum | NullEnum | null;
-      /** @nullable */
+      /** Experiment conclusion: won, lost, inconclusive, stopped_early, or invalid.
+
+    * `won` - won
+    * `lost` - lost
+    * `inconclusive` - inconclusive
+    * `stopped_early` - stopped_early
+    * `invalid` - invalid */
+      conclusion?: ConclusionEnum | NullEnum | null;
+      /**
+       * Comment about the experiment conclusion.
+       * @nullable
+       */
       conclusion_comment?: string | null;
       primary_metrics_ordered_uuids?: unknown | null;
       secondary_metrics_ordered_uuids?: unknown | null;
@@ -23777,9 +23927,13 @@ export namespace Schemas {
      */
     export interface PatchedExperiment {
       readonly id?: number;
-      /** @maxLength 400 */
+      /**
+       * Name of the experiment.
+       * @maxLength 400
+       */
       name?: string;
       /**
+       * Description of the experiment hypothesis and expected outcomes.
        * @maxLength 400
        * @nullable
        */
@@ -23788,35 +23942,61 @@ export namespace Schemas {
       start_date?: string | null;
       /** @nullable */
       end_date?: string | null;
+      /** Unique key for the experiment's feature flag. Letters, numbers, hyphens, and underscores only. Search existing flags with the feature-flags-get-all tool first — reuse an existing flag when possible. */
       feature_flag_key?: string;
       readonly feature_flag?: MinimalFeatureFlag;
       readonly holdout?: ExperimentHoldout;
-      /** @nullable */
+      /**
+       * ID of a holdout group to exclude from the experiment.
+       * @nullable
+       */
       holdout_id?: number | null;
       /** @nullable */
       readonly exposure_cohort?: number | null;
-      parameters?: unknown | null;
+      /** Variant definitions and statistical configuration. Set feature_flag_variants to customize the split (default: 50/50 control/test). Each variant needs a key and rollout_percentage; percentages must sum to 100. Set minimum_detectable_effect (percentage, suggest 20-30) to control statistical power. */
+      parameters?: ExperimentParameters | null;
       secondary_metrics?: unknown | null;
       readonly saved_metrics?: readonly ExperimentToSavedMetric[];
-      /** @nullable */
+      /**
+       * IDs of shared saved metrics to attach to this experiment. Each item has 'id' (saved metric ID) and 'metadata' with 'type' (primary or secondary).
+       * @nullable
+       */
       saved_metrics_ids?: unknown[] | null;
       filters?: unknown;
+      /** Whether the experiment is archived. */
       archived?: boolean;
       /** @nullable */
       deleted?: boolean | null;
       readonly created_by?: UserBasic;
       readonly created_at?: string;
       readonly updated_at?: string;
-      type?: ExperimentTypeEnum | BlankEnum | NullEnum | null;
-      exposure_criteria?: unknown | null;
-      metrics?: unknown | null;
-      metrics_secondary?: unknown | null;
+      /** Experiment type: web for frontend UI changes, product for backend/API changes.
+
+    * `web` - web
+    * `product` - product */
+      type?: ExperimentTypeEnum | NullEnum | null;
+      /** Exposure configuration including filter test accounts and custom exposure events. */
+      exposure_criteria?: ExperimentApiExposureCriteria | null;
+      /** Primary experiment metrics. Each metric must have kind='ExperimentMetric' and a metric_type: 'mean' (set source to an EventsNode with an event name), 'funnel' (set series to an array of EventsNode steps), 'ratio' (set numerator and denominator EventsNode entries), or 'retention' (set start_event and completion_event). Use the event-definitions-list tool to find available events in the project. */
+      metrics?: _ExperimentApiMetricsList | null;
+      /** Secondary metrics for additional measurements. Same format as primary metrics. */
+      metrics_secondary?: _ExperimentApiMetricsList | null;
       stats_config?: unknown | null;
       scheduling_config?: unknown | null;
       allow_unknown_events?: boolean;
       _create_in_folder?: string;
-      conclusion?: ExperimentConclusionEnum | BlankEnum | NullEnum | null;
-      /** @nullable */
+      /** Experiment conclusion: won, lost, inconclusive, stopped_early, or invalid.
+
+    * `won` - won
+    * `lost` - lost
+    * `inconclusive` - inconclusive
+    * `stopped_early` - stopped_early
+    * `invalid` - invalid */
+      conclusion?: ConclusionEnum | NullEnum | null;
+      /**
+       * Comment about the experiment conclusion.
+       * @nullable
+       */
       conclusion_comment?: string | null;
       primary_metrics_ordered_uuids?: unknown | null;
       secondary_metrics_ordered_uuids?: unknown | null;
@@ -30235,7 +30415,7 @@ export namespace Schemas {
     * `inconclusive` - inconclusive
     * `stopped_early` - stopped_early
     * `invalid` - invalid */
-      conclusion?: ConclusionF33Enum | NullEnum | null;
+      conclusion?: ConclusionEnum | NullEnum | null;
       /**
        * Optional comment about the experiment conclusion.
        * @nullable
