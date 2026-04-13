@@ -7070,7 +7070,9 @@ class MultiQuestionFormQuestion(BaseModel):
     )
     allow_custom_answer: bool | None = Field(
         default=None,
-        description=('Whether to show a "Type your answer" option (default: true). Only used for select type.'),
+        description=(
+            'Whether to show a "Type your answer" option (default: true). Used for select and multi_select types.'
+        ),
     )
     fields: list[MultiQuestionFormField] | None = Field(
         default=None,
