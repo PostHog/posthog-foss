@@ -54,6 +54,7 @@ export function TrendsLineChartD3({ context }: TrendsLineChartD3Props): JSX.Elem
         labelGroupType,
         hasPersonsModal,
         querySource,
+        incompletenessOffsetFromEnd,
     } = useValues(trendsDataLogic(insightProps))
     const { timezone, weekStartDay, baseCurrency } = useValues(teamLogic)
     const { aggregationLabel } = useValues(groupsModel)
@@ -74,25 +75,33 @@ export function TrendsLineChartD3({ context }: TrendsLineChartD3Props): JSX.Elem
         indexedResults[0]?.data &&
         indexedResults.filter((result: IndexedTrendResult) => result.count !== 0).length > 0
 
+    // Dash the in-progress tail (mirrors LineGraph.tsx). Stickiness indices aren't dates.
+    const isInProgress = !isStickiness && incompletenessOffsetFromEnd < 0
+
     const hogSeries: Series<TrendsSeriesMeta>[] = useMemo(
         () =>
-            (indexedResults ?? []).map((r: IndexedTrendResult) => ({
-                key: `${r.id}`,
-                label: r.label ?? '',
-                data: r.data,
-                color: r.compare_label === 'previous' ? hexToRGBA(getTrendsColor(r), 0.5) : getTrendsColor(r),
-                fillArea: display === ChartDisplayType.ActionsAreaGraph,
-                meta: {
-                    action: r.action,
-                    breakdown_value: r.breakdown_value,
-                    compare_label: r.compare_label,
-                    days: r.days,
-                    // Use action order when available; fall back to the series index for stable ordering.
-                    order: r.action?.order ?? r.id,
-                    filter: r.filter,
-                },
-            })),
-        [indexedResults, display, getTrendsColor]
+            (indexedResults ?? []).map((r: IndexedTrendResult) => {
+                const isActiveSeries = !r.compare || r.compare_label !== 'previous'
+                const dashedFromIndex =
+                    isInProgress && isActiveSeries ? r.data.length + incompletenessOffsetFromEnd : undefined
+                return {
+                    key: `${r.id}`,
+                    label: r.label ?? '',
+                    data: r.data,
+                    color: r.compare_label === 'previous' ? hexToRGBA(getTrendsColor(r), 0.5) : getTrendsColor(r),
+                    fillArea: display === ChartDisplayType.ActionsAreaGraph,
+                    dashedFromIndex,
+                    meta: {
+                        action: r.action,
+                        breakdown_value: r.breakdown_value,
+                        compare_label: r.compare_label,
+                        days: r.days,
+                        order: r.action?.order ?? r.id,
+                        filter: r.filter,
+                    },
+                }
+            }),
+        [indexedResults, display, getTrendsColor, isInProgress, incompletenessOffsetFromEnd]
     )
 
     const chartConfig: LineChartConfig = useMemo(() => {
