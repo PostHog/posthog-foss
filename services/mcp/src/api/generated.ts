@@ -16047,6 +16047,8 @@ export namespace Schemas {
        * @nullable
        */
       default_branch?: string | null;
+      /** Whether more branches exist beyond the returned page */
+      has_more: boolean;
     }
 
     export interface GitHubRepo {
@@ -32350,6 +32352,17 @@ export namespace Schemas {
 
     export type EnvironmentsIntegrationsGithubBranchesRetrieveParams = {
     /**
+     * Maximum number of branches to return
+     * @minimum 1
+     * @maximum 1000
+     */
+    limit?: number;
+    /**
+     * Number of branches to skip
+     * @minimum 0
+     */
+    offset?: number;
+    /**
      * Repository in owner/repo format
      * @minLength 1
      */
@@ -35575,6 +35588,17 @@ export namespace Schemas {
     };
 
     export type IntegrationsGithubBranchesRetrieveParams = {
+    /**
+     * Maximum number of branches to return
+     * @minimum 1
+     * @maximum 1000
+     */
+    limit?: number;
+    /**
+     * Number of branches to skip
+     * @minimum 0
+     */
+    offset?: number;
     /**
      * Repository in owner/repo format
      * @minLength 1
