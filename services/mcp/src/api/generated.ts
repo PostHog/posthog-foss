@@ -26322,6 +26322,11 @@ export namespace Schemas {
       readonly created_by?: UserBasic;
     }
 
+    export interface PatchedTaskRunSetOutputRequest {
+      /** Output data from the run. Validated against the task's json_schema if one is set. */
+      output?: unknown;
+    }
+
     /**
      * * `not_started` - not_started
     * `queued` - queued
