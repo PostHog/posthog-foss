@@ -19879,6 +19879,11 @@ export namespace Schemas {
        * @nullable
        */
       readonly is_not_active_reason: string | null;
+      /**
+       * Set to True when org deletion has been initiated. Blocks all UI access until the async task completes.
+       * @nullable
+       */
+      readonly is_pending_deletion: boolean | null;
     }
 
     /**
@@ -19909,6 +19914,11 @@ export namespace Schemas {
        * @nullable
        */
       is_not_active_reason?: string | null;
+      /**
+       * Set to True when org deletion has been initiated. Blocks all UI access until the async task completes.
+       * @nullable
+       */
+      is_pending_deletion?: boolean | null;
     }
 
     export interface OrganizationDomain {
@@ -24878,6 +24888,11 @@ export namespace Schemas {
        * @nullable
        */
       readonly is_not_active_reason?: string | null;
+      /**
+       * Set to True when org deletion has been initiated. Blocks all UI access until the async task completes.
+       * @nullable
+       */
+      readonly is_pending_deletion?: boolean | null;
     }
 
     export interface PatchedOrganizationDomain {
