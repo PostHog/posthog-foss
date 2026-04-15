@@ -479,6 +479,51 @@
             "readOnlyHint": false
         }
     },
+    "conversations-tickets-list": {
+        "description": "List support tickets in the project. Supports filtering by status (new, open, pending, on_hold, resolved), priority (low, medium, high), channel_source (widget, email, slack), assignee, date range, and search. Results are paginated and ordered by updated_at descending by default. Returns ticket metadata including status, priority, message counts, and timestamps.",
+        "category": "Conversations",
+        "feature": "conversations",
+        "summary": "List support tickets",
+        "title": "List support tickets",
+        "required_scopes": ["ticket:read"],
+        "new_mcp": true,
+        "annotations": {
+            "destructiveHint": false,
+            "idempotentHint": true,
+            "openWorldHint": true,
+            "readOnlyHint": true
+        }
+    },
+    "conversations-tickets-retrieve": {
+        "description": "Get a specific support ticket by ID or ticket number. Returns full ticket details including status, priority, assignee, message count, channel info, person data, and session context.",
+        "category": "Conversations",
+        "feature": "conversations",
+        "summary": "Get support ticket",
+        "title": "Get support ticket",
+        "required_scopes": ["ticket:read"],
+        "new_mcp": true,
+        "annotations": {
+            "destructiveHint": false,
+            "idempotentHint": true,
+            "openWorldHint": true,
+            "readOnlyHint": true
+        }
+    },
+    "conversations-tickets-update": {
+        "description": "Update a support ticket. Can change status (new, open, pending, on_hold, resolved), priority (low, medium, high), assignee, SLA deadline, escalation reason, and tags. Assignee should be an object with type ('user' or 'role') and id, or null to unassign.",
+        "category": "Conversations",
+        "feature": "conversations",
+        "summary": "Update support ticket",
+        "title": "Update support ticket",
+        "required_scopes": ["ticket:write"],
+        "new_mcp": true,
+        "annotations": {
+            "destructiveHint": false,
+            "idempotentHint": true,
+            "openWorldHint": true,
+            "readOnlyHint": false
+        }
+    },
     "dashboards-get-all": {
         "description": "Get all dashboards in the project with optional filtering by pinned status or search term. Returns name, description, pinned status, tags, and creation metadata.",
         "category": "Dashboards",
