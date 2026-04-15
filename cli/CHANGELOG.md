@@ -1,6 +1,6 @@
 # posthog-cli
 
-# 0.7.6
+# 0.7.7
 
 - fix: align `dsym upload` release flags with other upload commands by using `--release-name` / `--release-version` (with backward-compatible aliases)
 - fix: reuse shared release args in `dsym upload` so release fallback behavior matches other upload commands
