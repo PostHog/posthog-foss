@@ -216,6 +216,7 @@ import type {
     ErrorTrackingRuleType,
 } from 'products/error_tracking/frontend/scenes/ErrorTrackingConfigurationScene/rules/types'
 import type { SymbolSetOrder } from 'products/error_tracking/frontend/scenes/ErrorTrackingConfigurationScene/symbol_sets/symbolSetLogic'
+import type { ErrorTrackingRecommendation } from 'products/error_tracking/frontend/scenes/ErrorTrackingScene/tabs/recommendations/types'
 import type { GitHubReposResponseApi } from 'products/integrations/frontend/generated/api.schemas'
 import type { LogExplanation } from 'products/logs/frontend/components/LogsViewer/LogDetailsModal/Tabs/ExploreWithAI/types'
 import type {
@@ -1317,6 +1318,14 @@ export class ApiRequest {
 
     public errorTrackingSpikeEvents(teamId?: TeamType['id']): ApiRequest {
         return this.errorTracking(teamId).addPathComponent('spike_events')
+    }
+
+    public errorTrackingRecommendations(teamId?: TeamType['id']): ApiRequest {
+        return this.errorTracking(teamId).addPathComponent('recommendations')
+    }
+
+    public errorTrackingRecommendation(id: string, teamId?: TeamType['id']): ApiRequest {
+        return this.errorTrackingRecommendations(teamId).addPathComponent(id)
     }
 
     public quickFilters(teamId?: TeamType['id']): ApiRequest {
@@ -3946,6 +3955,22 @@ const api = {
 
         async rules(ruleType: ErrorTrackingRuleType): Promise<{ results: ErrorTrackingRule[] }> {
             return await new ApiRequest().errorTrackingRules(ruleType).get()
+        },
+
+        async listRecommendations(): Promise<{ results: ErrorTrackingRecommendation[] }> {
+            return await new ApiRequest().errorTrackingRecommendations().get()
+        },
+
+        async dismissRecommendation(id: string): Promise<ErrorTrackingRecommendation> {
+            return await new ApiRequest().errorTrackingRecommendation(id).withAction('dismiss').create()
+        },
+
+        async restoreRecommendation(id: string): Promise<ErrorTrackingRecommendation> {
+            return await new ApiRequest().errorTrackingRecommendation(id).withAction('restore').create()
+        },
+
+        async refreshRecommendation(id: string): Promise<ErrorTrackingRecommendation> {
+            return await new ApiRequest().errorTrackingRecommendation(id).withAction('refresh').create()
         },
 
         async createRule(
