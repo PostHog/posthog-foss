@@ -32807,6 +32807,11 @@ export namespace Schemas {
     search?: string;
     };
 
+    export type EnvironmentsExternalDataSourcesCheckCdcPrerequisitesCreate200 = {
+      valid?: boolean;
+      errors?: string[];
+    };
+
     export type EnvironmentsExternalDataSourcesConnectionsListParams = {
     /**
      * Number of results to return per page.
@@ -36106,6 +36111,11 @@ export namespace Schemas {
      * A search term.
      */
     search?: string;
+    };
+
+    export type ExternalDataSourcesCheckCdcPrerequisitesCreate200 = {
+      valid?: boolean;
+      errors?: string[];
     };
 
     export type ExternalDataSourcesConnectionsListParams = {
