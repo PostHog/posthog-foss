@@ -1614,6 +1614,18 @@ snapshots:
         hash: v1.k794b7964.93927b02e21238295333798b78b5e3689885b98b5962802fd31ee17646c6fca7.SdWugwKBlplgaHF_fwR-Ywe2KtzsRWPq2tP521WrrNM
     layout-feature-previews--with-constrained-feature--light:
         hash: v1.k794b7964.4cb479d90b5037a1e3bb76f642f592bc9ed0755254ca94d179c4f5415da62b37.L_ZUJfVZ9S9XRQjS_AnEqfU3aQ78BMtLMm6ENAwyfMQ
+    layout-impersonation-reason-modal--loading--dark:
+        hash: v1.k794b7964.61de3d7c17051d0415cd557c5a95c5c4044afe993f9d39a4a4483289eef073fc.pfJFRiZWuMZUNSoItghzC2Kfcr85tjfRuiP13rpDPj0
+    layout-impersonation-reason-modal--loading--light:
+        hash: v1.k794b7964.49fde24aaa146e21d1923d6ac5e3ed9d4b008af9c1070b35818598d717194907.lZOTHF-snGwU2n50gd9RDJ5oW2mH8bbBdvCM2LuZk3I
+    layout-impersonation-reason-modal--session-expired-re-impersonation--dark:
+        hash: v1.k794b7964.d3a7cd7b631b63becb29d32485cc1fb75d367549e77992281cf833b1d891e41b.VaZEpGezMOMLOFAU0Z5cNsUqElDaOvNxfi9-5jfFKkw
+    layout-impersonation-reason-modal--session-expired-re-impersonation--light:
+        hash: v1.k794b7964.2a52c1d162efc9ebce3447f43deade6efed17cb5a1089193243158278515a1f7.i-SWg6GZqJi87Mv_SuQg7bsYpIswQrzHcL8X562pnLM
+    layout-impersonation-reason-modal--upgrade-to-read-write--dark:
+        hash: v1.k794b7964.41dc6774433e2a35b93d9bd50c09a063a61574d8c724b08fb35c158ce53c2c39.6_nuqiXEwUoBq8YSXUWjPeb9d4NNRHRbh9NyiFv2f8s
+    layout-impersonation-reason-modal--upgrade-to-read-write--light:
+        hash: v1.k794b7964.7686131e8d04113362f587050067e1daa76329becb2e33097cebc43792467919.B37QbmEEFysXtGrVVX0H_WUofFwz8yAI0cJah0GEK9s
     layout-navigation--app-page-with-side-bar-hidden--dark:
         hash: v1.k794b7964.9e82f2f24ab93ebaeef0e76c9b21eb703bbc220b71ae98fc315e08e0cb9dfd1e.KtPWreQtklcwsePKkgafi9ReREFHVcn43CgaSiVzJXA
     layout-navigation--app-page-with-side-bar-hidden--light:
