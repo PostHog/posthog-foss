@@ -999,10 +999,7 @@ export interface QueryTimingApi {
 export type TrendsQueryResponseApiResultsItem = { [key: string]: unknown }
 
 export interface TrendsQueryResponseApi {
-    /**
-     * Box plot data when display type is BoxPlot
-     * @nullable
-     */
+    /** @nullable */
     boxplot_data?: BoxPlotDatumApi[] | null
     /**
      * Query error. Returned only if 'explain' or `modifiers.debug` is true. Throws an error otherwise.

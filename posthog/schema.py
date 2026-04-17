@@ -8488,9 +8488,7 @@ class TrendsQueryResponse(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    boxplot_data: list[BoxPlotDatum] | None = Field(
-        default=None, description="Box plot data when display type is BoxPlot"
-    )
+    boxplot_data: list[BoxPlotDatum] | None = None
     error: str | None = Field(
         default=None,
         description=(
@@ -11642,9 +11640,7 @@ class CachedTrendsQueryResponse(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    boxplot_data: list[BoxPlotDatum] | None = Field(
-        default=None, description="Box plot data when display type is BoxPlot"
-    )
+    boxplot_data: list[BoxPlotDatum] | None = None
     cache_key: str
     cache_target_age: AwareDatetime | None = None
     calculation_trigger: str | None = Field(
@@ -16449,9 +16445,7 @@ class QueryResponseAlternative66(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    boxplot_data: list[BoxPlotDatum] | None = Field(
-        default=None, description="Box plot data when display type is BoxPlot"
-    )
+    boxplot_data: list[BoxPlotDatum] | None = None
     error: str | None = Field(
         default=None,
         description=(
