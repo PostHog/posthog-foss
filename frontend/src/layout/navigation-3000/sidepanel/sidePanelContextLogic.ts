@@ -6,9 +6,9 @@ import { removeProjectIdIfPresent } from 'lib/utils/router-utils'
 import { sceneLogic } from 'scenes/sceneLogic'
 import { SceneConfig } from 'scenes/sceneTypes'
 
-import { SidePanelSceneContext } from '../types'
-import { SIDE_PANEL_CONTEXT_KEY } from '../types'
 import type { sidePanelContextLogicType } from './sidePanelContextLogicType'
+import { SidePanelSceneContext } from './types'
+import { SIDE_PANEL_CONTEXT_KEY } from './types'
 
 export const activityFiltersForScene = (sceneConfig: SceneConfig | null): SidePanelSceneContext | null => {
     if (sceneConfig?.activityScope) {
