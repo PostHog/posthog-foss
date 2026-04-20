@@ -5791,8 +5791,23 @@ class AssistantRetentionActionsNode(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    id: float = Field(..., description="Action ID from the plan.")
-    name: str = Field(..., description="Action name from the plan.")
+    id: float = Field(
+        ...,
+        description=(
+            "The numeric action ID from the plan. This is the field the retention query"
+            " engine uses to look up the action definition. For events use"
+            " `AssistantRetentionEventsNode` instead, where `id` is the event name"
+            " string."
+        ),
+    )
+    name: str | None = Field(
+        default=None,
+        description=(
+            "Optional human-readable label for the action, used for display only."
+            " Defaults to the action's stored name if omitted and is never used for"
+            " action matching."
+        ),
+    )
     properties: (
         list[
             AssistantCohortPropertyFilter
@@ -5827,7 +5842,23 @@ class AssistantRetentionEventsNode(BaseModel):
         default=None,
         description="Custom name for the event if it is needed to be renamed.",
     )
-    name: str = Field(..., description="Event name from the plan.")
+    id: str = Field(
+        ...,
+        description=(
+            "The event name from the plan as a string. This is the field the retention"
+            " query engine uses to match events, so it must be populated exactly as the"
+            " event appears in the plan. For actions use"
+            " `AssistantRetentionActionsNode` instead, where `id` is the numeric"
+            " action ID."
+        ),
+    )
+    name: str | None = Field(
+        default=None,
+        description=(
+            "Optional human-readable label for the event, used for display only."
+            " Defaults to `id` if omitted and is never used for event matching."
+        ),
+    )
     properties: (
         list[
             AssistantCohortPropertyFilter
@@ -8974,6 +9005,16 @@ class AssistantFunnelNodeShared(BaseModel):
             " completed the event with specified filters for the first time."
         ),
     )
+    optionalInFunnel: bool | None = Field(
+        default=False,
+        description=(
+            "If true, this step can be skipped without breaking the funnel — conversion"
+            " between the surrounding required steps still counts even if this step"
+            " didn't happen. Set this when the user asks for a non-required, skippable,"
+            " or optional step in the funnel. Do not set it on the first or last step"
+            " (those must be required)."
+        ),
+    )
     properties: (
         list[
             AssistantCohortPropertyFilter
@@ -9016,6 +9057,16 @@ class AssistantFunnelsActionsNode(BaseModel):
         ),
     )
     name: str = Field(..., description="Action name from the plan.")
+    optionalInFunnel: bool | None = Field(
+        default=False,
+        description=(
+            "If true, this step can be skipped without breaking the funnel — conversion"
+            " between the surrounding required steps still counts even if this step"
+            " didn't happen. Set this when the user asks for a non-required, skippable,"
+            " or optional step in the funnel. Do not set it on the first or last step"
+            " (those must be required)."
+        ),
+    )
     properties: (
         list[
             AssistantCohortPropertyFilter
@@ -9060,6 +9111,16 @@ class AssistantFunnelsEventsNode(BaseModel):
             " of users who have completed the event for the first time ever."
             " `first_time_for_user_with_filters` - counts the number of users who have"
             " completed the event with specified filters for the first time."
+        ),
+    )
+    optionalInFunnel: bool | None = Field(
+        default=False,
+        description=(
+            "If true, this step can be skipped without breaking the funnel — conversion"
+            " between the surrounding required steps still counts even if this step"
+            " didn't happen. Set this when the user asks for a non-required, skippable,"
+            " or optional step in the funnel. Do not set it on the first or last step"
+            " (those must be required)."
         ),
     )
     properties: (
