@@ -85,8 +85,12 @@ class ErrorTrackingSymbolSetViewSet(TeamAndOrgViewSetMixin, viewsets.ModelViewSe
     def safely_get_queryset(self, queryset):
         queryset = queryset.filter(team_id=self.team.id).select_related("release")
         params = self.request.GET.dict()
+        ref = params.get("ref")
         status = params.get("status")
         order_by = params.get("order_by")
+
+        if ref:
+            queryset = queryset.filter(ref=ref)
 
         if status == "valid":
             queryset = queryset.filter(storage_ptr__isnull=False)
@@ -122,8 +126,9 @@ class ErrorTrackingSymbolSetViewSet(TeamAndOrgViewSetMixin, viewsets.ModelViewSe
     @action(methods=["GET"], detail=True, parser_classes=[JSONParser])
     def download(self, request, **kwargs) -> Response:
         """Return a presigned URL for downloading the symbol set's source map."""
-        symbol_set = self.get_object()
+        return self._download_symbol_set(self.get_object())
 
+    def _download_symbol_set(self, symbol_set: ErrorTrackingSymbolSet) -> Response:
         if not symbol_set.storage_ptr:
             return Response(
                 {"detail": "Symbol set has no uploaded file."},

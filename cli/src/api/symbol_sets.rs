@@ -217,6 +217,40 @@ struct DownloadResponse {
     url: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct SymbolSetListItem {
+    id: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct ListResponse {
+    results: Vec<SymbolSetListItem>,
+}
+
+/// Resolve a symbol set ref to its ID.
+pub fn resolve_ref(symbol_set_ref: &str) -> Result<String> {
+    let client = &context().client;
+    let encoded_ref = urlencoding::encode(symbol_set_ref);
+    let url = client
+        .project_url(&format!(
+            "error_tracking/symbol_sets/?ref={encoded_ref}&limit=1"
+        ))
+        .context("Failed to build resolve URL")?;
+
+    let response: ListResponse = client
+        .send_get(url, |req| req)
+        .context("Failed to resolve symbol set ref")?
+        .json()
+        .context("Failed to parse resolve response")?;
+
+    response
+        .results
+        .into_iter()
+        .next()
+        .map(|s| s.id)
+        .context(format!("No symbol set found with ref '{symbol_set_ref}'"))
+}
+
 /// Get a presigned download URL for a symbol set.
 pub fn get_download_url(symbol_set_id: &str) -> Result<String> {
     let client = &context().client;

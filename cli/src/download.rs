@@ -1,3 +1,4 @@
+use std::io::Cursor;
 use std::{fs, path::PathBuf};
 
 use anyhow::{Context, Result};
@@ -20,7 +21,12 @@ pub enum SymbolSetsSubcommand {
 #[derive(clap::Args, Clone)]
 pub struct DownloadArgs {
     /// Symbol set ID to download
-    pub id: String,
+    #[arg(long, required_unless_present = "r#ref")]
+    pub id: Option<String>,
+
+    /// Symbol set ref to download (looked up by ref)
+    #[arg(long = "ref", required_unless_present = "id")]
+    pub r#ref: Option<String>,
 
     /// Output directory for extracted files
     #[arg(short, long, default_value = ".")]
@@ -40,11 +46,22 @@ pub struct ExtractArgs {
 pub fn download(args: &DownloadArgs) -> Result<()> {
     context().capture_command_invoked("symbolset_download");
 
-    info!("Downloading symbol set {}", args.id);
-    let data = symbol_sets::download_bytes(&args.id)?;
+    let (id, base_name) = match (&args.id, &args.r#ref) {
+        (Some(id), _) => (id.clone(), id.clone()),
+        (_, Some(r)) => {
+            info!("Resolving ref: {r}");
+            let id = symbol_sets::resolve_ref(r)?;
+            let base_name = derive_base_name(r);
+            (id, base_name)
+        }
+        _ => anyhow::bail!("Either --id or --ref must be provided"),
+    };
+
+    info!("Downloading symbol set {id}");
+    let data = symbol_sets::download_bytes(&id)?;
     info!("Downloaded {} bytes", data.len());
 
-    extract_symbol_data(&data, &args.id, &args.output)
+    extract_symbol_data(&data, &base_name, &args.output)
 }
 
 pub fn extract(args: &ExtractArgs) -> Result<()> {
@@ -101,11 +118,7 @@ fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result
 
     match read_symbol_data::<AppleDsym>(owned) {
         Ok(parsed) => {
-            let dsym_path = output.join(format!("{base_name}.dSYM"));
-            fs::write(&dsym_path, &parsed.data).context("Failed to write dSYM file")?;
-            info!("Wrote {}", dsym_path.display());
-
-            println!("Extracted dSYM to {}", output.display());
+            extract_dsym_zip(&parsed.data, base_name, output)?;
             Ok(())
         }
         Err(SymbolDataError::InvalidDataType(actual, _)) => {
@@ -115,6 +128,37 @@ fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result
             anyhow::bail!("Failed to parse symbol set: {e}")
         }
     }
+}
+
+/// Extract a dSYM ZIP archive (DWARF binary + optional source files).
+fn extract_dsym_zip(zip_data: &[u8], base_name: &str, output: &PathBuf) -> Result<()> {
+    let dsym_dir = output.join(base_name);
+    fs::create_dir_all(&dsym_dir).context("Failed to create dSYM output directory")?;
+
+    let reader = Cursor::new(zip_data);
+    let mut archive = zip::ZipArchive::new(reader).context("Failed to read dSYM ZIP archive")?;
+
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).context("Failed to read ZIP entry")?;
+        let name = file.name().to_string();
+
+        let out_path = dsym_dir.join(&name);
+        if let Some(parent) = out_path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        let mut out_file = fs::File::create(&out_path)
+            .context(format!("Failed to create {}", out_path.display()))?;
+        std::io::copy(&mut file, &mut out_file)?;
+        info!("Wrote {}", out_path.display());
+    }
+
+    println!(
+        "Extracted dSYM ({} files) to {}",
+        archive.len(),
+        dsym_dir.display()
+    );
+    Ok(())
 }
 
 /// Extract a reasonable base filename from the symbol set ref.
