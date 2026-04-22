@@ -21,7 +21,7 @@ pub enum SymbolSetsSubcommand {
 #[derive(clap::Args, Clone)]
 pub struct DownloadArgs {
     /// Symbol set ID to download
-    #[arg(long, required_unless_present = "r#ref")]
+    #[arg(long, required_unless_present = "ref")]
     pub id: Option<String>,
 
     /// Symbol set ref to download (looked up by ref)
