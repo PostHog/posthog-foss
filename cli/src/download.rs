@@ -19,9 +19,8 @@ pub enum SymbolSetsSubcommand {
 
 #[derive(clap::Args, Clone)]
 pub struct DownloadArgs {
-    /// Symbol set ID to download. If omitted, lists available symbol sets.
-    #[arg(long)]
-    pub id: Option<String>,
+    /// Symbol set ID to download
+    pub id: String,
 
     /// Output directory for extracted files
     #[arg(short, long, default_value = ".")]
@@ -41,36 +40,11 @@ pub struct ExtractArgs {
 pub fn download(args: &DownloadArgs) -> Result<()> {
     context().capture_command_invoked("symbolset_download");
 
-    let symbol_set = match &args.id {
-        Some(id) => {
-            info!("Downloading symbol set {id}");
-            let items = symbol_sets::list_all()?;
-            items
-                .into_iter()
-                .find(|s| s.id == *id)
-                .context(format!("Symbol set with ID {id} not found"))?
-        }
-        None => {
-            let items = symbol_sets::list_all()?;
-            if items.is_empty() {
-                anyhow::bail!("No uploaded symbol sets found for this project");
-            }
-
-            println!("Available symbol sets:");
-            for (i, item) in items.iter().enumerate() {
-                println!("  [{}] {} ({})", i + 1, item.r#ref, item.id);
-            }
-
-            anyhow::bail!("Please specify a symbol set ID with --id");
-        }
-    };
-
-    info!("Downloading symbol set: {}", symbol_set.r#ref);
-    let data = symbol_sets::download_bytes(&symbol_set.id)?;
+    info!("Downloading symbol set {}", args.id);
+    let data = symbol_sets::download_bytes(&args.id)?;
     info!("Downloaded {} bytes", data.len());
 
-    let base_name = derive_base_name(&symbol_set.r#ref);
-    extract_symbol_data(&data, &base_name, &args.output)
+    extract_symbol_data(&data, &args.id, &args.output)
 }
 
 pub fn extract(args: &ExtractArgs) -> Result<()> {

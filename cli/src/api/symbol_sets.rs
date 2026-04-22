@@ -217,51 +217,6 @@ struct DownloadResponse {
     url: String,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct SymbolSetListItem {
-    pub id: String,
-    pub r#ref: String,
-    pub storage_ptr: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct ListResponse {
-    results: Vec<SymbolSetListItem>,
-    next: Option<String>,
-}
-
-/// List all symbol sets for the current project.
-pub fn list_all() -> Result<Vec<SymbolSetListItem>> {
-    let client = &context().client;
-    let mut all = Vec::new();
-    let mut offset = 0;
-    let limit = 100;
-
-    loop {
-        let url = client
-            .project_url(&format!(
-                "error_tracking/symbol_sets/?limit={limit}&offset={offset}&status=valid"
-            ))
-            .context("Failed to build list URL")?;
-
-        let response: ListResponse = client
-            .send_get(url, |req| req)
-            .context("Failed to list symbol sets")?
-            .json()
-            .context("Failed to parse list response")?;
-
-        let count = response.results.len();
-        all.extend(response.results);
-
-        if response.next.is_none() || count == 0 {
-            break;
-        }
-        offset += limit;
-    }
-
-    Ok(all)
-}
-
 /// Get a presigned download URL for a symbol set.
 pub fn get_download_url(symbol_set_id: &str) -> Result<String> {
     let client = &context().client;
