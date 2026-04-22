@@ -5829,6 +5829,12 @@ export namespace Schemas {
       PositionBased: 'position_based',
     } as const;
 
+    export interface UserBasicInfo {
+      id: number;
+      first_name: string;
+      email: string;
+    }
+
     export interface RunSummary {
       total: number;
       changed: number;
@@ -5841,6 +5847,7 @@ export namespace Schemas {
     export type RunMetadata = {[key: string]: unknown};
 
     export interface Run {
+      approved_by?: UserBasicInfo | null;
       id: string;
       repo_id: string;
       status: string;
@@ -22492,6 +22499,27 @@ export namespace Schemas {
       results: ProjectSecretAPIKey[];
     }
 
+    export interface QuarantinedIdentifierEntry {
+      created_by?: UserBasicInfo | null;
+      id: string;
+      identifier: string;
+      run_type: string;
+      reason: string;
+      /** @nullable */
+      expires_at: string | null;
+      created_at: string;
+      updated_at: string;
+    }
+
+    export interface PaginatedQuarantinedIdentifierEntryList {
+      count: number;
+      /** @nullable */
+      next?: string | null;
+      /** @nullable */
+      previous?: string | null;
+      results: QuarantinedIdentifierEntry[];
+    }
+
     export interface QueryTabState {
       readonly id: string;
       /** 
@@ -23067,6 +23095,7 @@ export namespace Schemas {
       current_artifact?: Artifact | null;
       baseline_artifact?: Artifact | null;
       diff_artifact?: Artifact | null;
+      reviewed_by?: UserBasicInfo | null;
       id: string;
       identifier: string;
       result: string;
@@ -23081,6 +23110,7 @@ export namespace Schemas {
       approved_hash: string;
       /** @nullable */
       tolerated_hash_id?: string | null;
+      is_quarantined?: boolean;
       metadata?: SnapshotMetadata;
     }
 
@@ -30610,6 +30640,15 @@ export namespace Schemas {
       results: ProxyRecord[];
       /** Maximum number of proxy records allowed for this organization's current plan. */
       max_proxy_records: number;
+    }
+
+    export interface QuarantineInput {
+      /** @maxLength 512 */
+      identifier: string;
+      /** @maxLength 255 */
+      reason: string;
+      /** @nullable */
+      expires_at?: string | null;
     }
 
     /**
@@ -41769,6 +41808,34 @@ export namespace Schemas {
      * The initial index from which to return the results.
      */
     offset?: number;
+    };
+
+    export type VisualReviewReposQuarantineListParams = {
+    /**
+     * Filter by identifier (returns full history)
+     */
+    identifier?: string;
+    /**
+     * Number of results to return per page.
+     */
+    limit?: number;
+    /**
+     * The initial index from which to return the results.
+     */
+    offset?: number;
+    /**
+     * Filter by run type
+     */
+    run_type?: string;
+    };
+
+    export type VisualReviewReposQuarantineDestroyParams = {
+    /**
+     * Snapshot identifier to unquarantine
+     * @minLength 1
+     * @maxLength 512
+     */
+    identifier: string;
     };
 
     export type VisualReviewRunsListParams = {
