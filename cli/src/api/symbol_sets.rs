@@ -253,6 +253,8 @@ pub fn resolve_ref(symbol_set_ref: &str) -> Result<String> {
 
 /// Get a presigned download URL for a symbol set.
 pub fn get_download_url(symbol_set_id: &str) -> Result<String> {
+    // Validate UUID to prevent path traversal
+    uuid::Uuid::parse_str(symbol_set_id).context("Invalid symbol set ID: expected a UUID")?;
     let client = &context().client;
     let url = client
         .project_url(&format!(
