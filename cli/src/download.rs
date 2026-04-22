@@ -1,5 +1,8 @@
 use std::io::Cursor;
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::{Context, Result};
 use clap::Subcommand;
@@ -78,7 +81,7 @@ pub fn extract(args: &ExtractArgs) -> Result<()> {
     extract_symbol_data(&data, &base_name, &args.output)
 }
 
-fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result<()> {
+fn extract_symbol_data(data: &[u8], base_name: &str, output: &Path) -> Result<()> {
     fs::create_dir_all(output).context("Failed to create output directory")?;
 
     let owned = data.to_vec();
@@ -131,27 +134,32 @@ fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result
 }
 
 /// Extract a dSYM ZIP archive (DWARF binary + optional source files).
-fn extract_dsym_zip(zip_data: &[u8], base_name: &str, output: &PathBuf) -> Result<()> {
+fn extract_dsym_zip(zip_data: &[u8], base_name: &str, output: &Path) -> Result<()> {
+    use std::path::Component;
+
     let dsym_dir = output.join(base_name);
     fs::create_dir_all(&dsym_dir).context("Failed to create dSYM output directory")?;
 
-    let canonical_dir = fs::canonicalize(&dsym_dir)?;
     let reader = Cursor::new(zip_data);
     let mut archive = zip::ZipArchive::new(reader).context("Failed to read dSYM ZIP archive")?;
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).context("Failed to read ZIP entry")?;
-        let name = file.name().to_string();
 
-        let out_path = dsym_dir.join(&name);
+        // Sanitize: keep only Normal components, stripping .., ., and root prefixes
+        let safe_name: PathBuf = std::path::Path::new(file.name())
+            .components()
+            .filter_map(|c| match c {
+                Component::Normal(part) => Some(part),
+                _ => None,
+            })
+            .collect();
 
-        // Prevent ZIP path traversal
-        let canonical_out = out_path
-            .canonicalize()
-            .unwrap_or_else(|_| dsym_dir.join(out_path.file_name().unwrap_or_default()));
-        if !canonical_out.starts_with(&canonical_dir) {
-            anyhow::bail!("ZIP entry escapes output directory: {}", name);
+        if safe_name.as_os_str().is_empty() {
+            continue;
         }
+
+        let out_path = dsym_dir.join(&safe_name);
 
         if let Some(parent) = out_path.parent() {
             fs::create_dir_all(parent)?;
@@ -173,7 +181,15 @@ fn extract_dsym_zip(zip_data: &[u8], base_name: &str, output: &PathBuf) -> Resul
 
 /// Extract a reasonable base filename from the symbol set ref.
 fn derive_base_name(ref_str: &str) -> String {
-    let name = ref_str.rsplit('/').next().unwrap_or(ref_str);
+    let name = std::path::Path::new(ref_str)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(ref_str);
+    let name = if name == ".." || name == "." {
+        "symbol_set"
+    } else {
+        name
+    };
     // Strip common extensions so we can re-add the correct ones
     let name = name
         .strip_suffix(".js.map")
