@@ -6,7 +6,7 @@ use crate::{
     dsym::DsymSubcommand,
     error::CapturedError,
     experimental::{endpoints::EndpointCommand, query::command::QueryCommand, tasks::TaskCommand},
-    invocation_context::{context, init_context},
+    invocation_context::{context, init_context, INVOCATION_CONTEXT},
     proguard::ProguardSubcommand,
     sourcemaps::{hermes::HermesSubcommand, plain::SourcemapCommand},
 };
@@ -269,7 +269,9 @@ impl Cli {
             },
         }
 
-        context().finish();
+        if INVOCATION_CONTEXT.get().is_some() {
+            context().finish();
+        }
 
         Ok(())
     }
