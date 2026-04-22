@@ -130,13 +130,9 @@ class ErrorTrackingSymbolSetViewSet(TeamAndOrgViewSetMixin, viewsets.ModelViewSe
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Derive a download filename from the ref (often a URL or path)
-        filename = symbol_set.ref.rsplit("/", 1)[-1] or symbol_set.ref
-
         presigned_url = object_storage.get_presigned_url(
             file_key=symbol_set.storage_ptr,
             expiration=3600,
-            content_disposition=f'attachment; filename="{filename}"',
         )
 
         if not presigned_url:
