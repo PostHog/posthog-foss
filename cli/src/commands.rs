@@ -180,6 +180,9 @@ impl Cli {
                     crate::sourcemaps::plain::inject::inject(&inject)?;
                     crate::sourcemaps::plain::upload::upload(&upload)?;
                 }
+                SourcemapCommand::Download(args) => {
+                    crate::sourcemaps::plain::download::download(&args)?;
+                }
             },
             Commands::Dsym { cmd } => match cmd {
                 DsymSubcommand::Upload(args) => {

@@ -6,6 +6,7 @@ use crate::sourcemaps::{
     inject::InjectArgs,
 };
 
+pub mod download;
 pub mod inject;
 pub mod upload;
 
@@ -17,6 +18,8 @@ pub enum SourcemapCommand {
     Upload(upload::Args),
     /// Run inject and upload in one command
     Process(ProcessArgs),
+    /// Download and extract a symbol set's source map
+    Download(download::Args),
 }
 
 #[derive(clap::Args)]

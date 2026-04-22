@@ -212,6 +212,95 @@ fn finish_upload(content_hashes: HashMap<String, String>) -> Result<(), UploadEr
     Ok(())
 }
 
+#[derive(Debug, Deserialize)]
+struct DownloadResponse {
+    url: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SymbolSetListItem {
+    pub id: String,
+    pub r#ref: String,
+    pub storage_ptr: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ListResponse {
+    results: Vec<SymbolSetListItem>,
+    next: Option<String>,
+}
+
+/// List all symbol sets for the current project.
+pub fn list_all() -> Result<Vec<SymbolSetListItem>> {
+    let client = &context().client;
+    let mut all = Vec::new();
+    let mut offset = 0;
+    let limit = 100;
+
+    loop {
+        let url = client
+            .project_url(&format!(
+                "error_tracking/symbol_sets/?limit={limit}&offset={offset}&status=valid"
+            ))
+            .context("Failed to build list URL")?;
+
+        let response: ListResponse = client
+            .send_get(url, |req| req)
+            .context("Failed to list symbol sets")?
+            .json()
+            .context("Failed to parse list response")?;
+
+        let count = response.results.len();
+        all.extend(response.results);
+
+        if response.next.is_none() || count == 0 {
+            break;
+        }
+        offset += limit;
+    }
+
+    Ok(all)
+}
+
+/// Get a presigned download URL for a symbol set.
+pub fn get_download_url(symbol_set_id: &str) -> Result<String> {
+    let client = &context().client;
+    let url = client
+        .project_url(&format!(
+            "error_tracking/symbol_sets/{symbol_set_id}/download/"
+        ))
+        .context("Failed to build download URL")?;
+
+    let response: DownloadResponse = client
+        .send_get(url, |req| req)
+        .context("Failed to get download URL")?
+        .json()
+        .context("Failed to parse download response")?;
+
+    Ok(response.url)
+}
+
+/// Download the raw bytes of a symbol set from S3.
+pub fn download_bytes(symbol_set_id: &str) -> Result<Vec<u8>> {
+    let presigned_url = get_download_url(symbol_set_id)?;
+    let http_client = context().build_http_client()?;
+
+    let response = http_client
+        .get(&presigned_url)
+        .send()
+        .context("Failed to download from S3")?;
+
+    if !response.status().is_success() {
+        anyhow::bail!(
+            "S3 download failed with status {}",
+            response.status().as_u16()
+        );
+    }
+
+    let bytes = response.bytes().context("Failed to read response body")?;
+    Ok(bytes.to_vec())
+}
+
 impl SymbolSetUpload {
     pub fn cheap_clone(&self) -> Self {
         Self {
