@@ -48,8 +48,8 @@ pub fn download(args: &DownloadArgs) -> Result<()> {
 }
 
 pub fn extract(args: &ExtractArgs) -> Result<()> {
-    let data = fs::read(&args.file)
-        .context(format!("Failed to read file {}", args.file.display()))?;
+    let data =
+        fs::read(&args.file).context(format!("Failed to read file {}", args.file.display()))?;
     info!("Read {} bytes from {}", data.len(), args.file.display());
 
     let base_name = derive_base_name(
@@ -78,8 +78,7 @@ fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result
             info!("Wrote {}", source_path.display());
 
             let map_path = output.join(format!("{base_name}.js.map"));
-            fs::write(&map_path, &parsed.sourcemap)
-                .context("Failed to write sourcemap file")?;
+            fs::write(&map_path, &parsed.sourcemap).context("Failed to write sourcemap file")?;
             info!("Wrote {}", map_path.display());
 
             println!("Extracted source and sourcemap to {}", output.display());
@@ -90,8 +89,7 @@ fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result
                 .context("Failed to parse as HermesMap")?;
 
             let map_path = output.join(format!("{base_name}.hbc.map"));
-            fs::write(&map_path, &parsed.sourcemap)
-                .context("Failed to write hermes sourcemap")?;
+            fs::write(&map_path, &parsed.sourcemap).context("Failed to write hermes sourcemap")?;
             info!("Wrote {}", map_path.display());
 
             println!("Extracted hermes sourcemap to {}", output.display());
@@ -102,8 +100,7 @@ fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result
                 .context("Failed to parse as ProguardMapping")?;
 
             let map_path = output.join(format!("{base_name}.txt"));
-            fs::write(&map_path, &parsed.content)
-                .context("Failed to write proguard mapping")?;
+            fs::write(&map_path, &parsed.content).context("Failed to write proguard mapping")?;
             info!("Wrote {}", map_path.display());
 
             println!("Extracted proguard mapping to {}", output.display());
