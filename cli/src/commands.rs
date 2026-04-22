@@ -70,7 +70,7 @@ pub enum Commands {
     },
 
     #[command(about = "Manage uploaded symbol sets")]
-    Symbolsets {
+    SymbolSets {
         #[command(subcommand)]
         cmd: SymbolSetsSubcommand,
     },
@@ -165,7 +165,7 @@ impl Cli {
         if !matches!(
             self.command,
             Commands::Login
-                | Commands::Symbolsets {
+                | Commands::SymbolSets {
                     cmd: SymbolSetsSubcommand::Extract(_)
                 }
         ) {
@@ -215,7 +215,7 @@ impl Cli {
                     crate::proguard::upload::upload(&args)?;
                 }
             },
-            Commands::Symbolsets { cmd } => match cmd {
+            Commands::SymbolSets { cmd } => match cmd {
                 SymbolSetsSubcommand::Download(args) => {
                     crate::download::download(&args)?;
                 }
