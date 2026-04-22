@@ -135,6 +135,7 @@ fn extract_dsym_zip(zip_data: &[u8], base_name: &str, output: &PathBuf) -> Resul
     let dsym_dir = output.join(base_name);
     fs::create_dir_all(&dsym_dir).context("Failed to create dSYM output directory")?;
 
+    let canonical_dir = fs::canonicalize(&dsym_dir)?;
     let reader = Cursor::new(zip_data);
     let mut archive = zip::ZipArchive::new(reader).context("Failed to read dSYM ZIP archive")?;
 
@@ -143,6 +144,15 @@ fn extract_dsym_zip(zip_data: &[u8], base_name: &str, output: &PathBuf) -> Resul
         let name = file.name().to_string();
 
         let out_path = dsym_dir.join(&name);
+
+        // Prevent ZIP path traversal
+        let canonical_out = out_path
+            .canonicalize()
+            .unwrap_or_else(|_| dsym_dir.join(out_path.file_name().unwrap_or_default()));
+        if !canonical_out.starts_with(&canonical_dir) {
+            anyhow::bail!("ZIP entry escapes output directory: {}", name);
+        }
+
         if let Some(parent) = out_path.parent() {
             fs::create_dir_all(parent)?;
         }
