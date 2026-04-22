@@ -2,6 +2,7 @@ use clap::{Parser, Subcommand};
 use tracing::error;
 
 use crate::{
+    download::SymbolSetsSubcommand,
     dsym::DsymSubcommand,
     error::CapturedError,
     experimental::{endpoints::EndpointCommand, query::command::QueryCommand, tasks::TaskCommand},
@@ -66,6 +67,12 @@ pub enum Commands {
     Proguard {
         #[command(subcommand)]
         cmd: ProguardSubcommand,
+    },
+
+    #[command(about = "Manage uploaded symbol sets")]
+    Symbolsets {
+        #[command(subcommand)]
+        cmd: SymbolSetsSubcommand,
     },
 }
 
@@ -180,9 +187,6 @@ impl Cli {
                     crate::sourcemaps::plain::inject::inject(&inject)?;
                     crate::sourcemaps::plain::upload::upload(&upload)?;
                 }
-                SourcemapCommand::Download(args) => {
-                    crate::sourcemaps::plain::download::download(&args)?;
-                }
             },
             Commands::Dsym { cmd } => match cmd {
                 DsymSubcommand::Upload(args) => {
@@ -203,6 +207,11 @@ impl Cli {
             Commands::Proguard { cmd } => match cmd {
                 ProguardSubcommand::Upload(args) => {
                     crate::proguard::upload::upload(&args)?;
+                }
+            },
+            Commands::Symbolsets { cmd } => match cmd {
+                SymbolSetsSubcommand::Download(args) => {
+                    crate::download::download(&args)?;
                 }
             },
             Commands::Exp { cmd } => match cmd {
