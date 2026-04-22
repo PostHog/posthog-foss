@@ -23,6 +23,7 @@ export const symbolSetLogic = kea<symbolSetLogicType>([
 
     actions({
         loadSymbolSets: () => {},
+        downloadSymbolSet: (id: string) => ({ id }),
         setSymbolSetStatusFilter: (status: SymbolSetStatusFilter) => ({ status }),
         setSymbolSetOrder: (order: SymbolSetOrder) => ({ order }),
         setPage: (page: number) => ({ page }),
@@ -37,7 +38,6 @@ export const symbolSetLogic = kea<symbolSetLogicType>([
         symbolSetStatusFilter: 'all' as SymbolSetStatusFilter,
         symbolSetOrder: '-created_at' as SymbolSetOrder,
         selectedSymbolSetIds: [] as string[],
-        downloadSymbolSetResponse: null as null,
         deleteSymbolSetResponse: null as null,
         shiftKeyHeld: false as boolean,
         previouslyCheckedIndex: null as number | null,
@@ -69,13 +69,6 @@ export const symbolSetLogic = kea<symbolSetLogicType>([
     }),
 
     loaders(({ values, actions }) => ({
-        downloadSymbolSetResponse: {
-            downloadSymbolSet: async (id: string) => {
-                const response = await api.errorTracking.symbolSets.download(id)
-                window.open(response.url, '_blank')
-                return null
-            },
-        },
         symbolSetResponse: {
             loadSymbolSets: async (_, breakpoint) => {
                 await breakpoint(100)
@@ -106,6 +99,15 @@ export const symbolSetLogic = kea<symbolSetLogicType>([
     })),
 
     listeners(({ actions }) => ({
+        downloadSymbolSet: async ({ id }) => {
+            try {
+                const response = await api.errorTracking.symbolSets.download(id)
+                window.open(response.url, '_blank')
+            } catch (e) {
+                lemonToast.error('Failed to download symbol set')
+                throw e
+            }
+        },
         setSymbolSetStatusFilter: () => actions.loadSymbolSets(),
         setPage: () => actions.loadSymbolSets(),
         setSymbolSetOrder: () => actions.loadSymbolSets(),
