@@ -12,11 +12,13 @@ const MAGIC: &[u8] = b"posthog_error_tracking";
 #[derive(Subcommand)]
 pub enum SymbolSetsSubcommand {
     /// Download and extract a symbol set (sourcemap, hermes, proguard, or dSYM)
-    Download(Args),
+    Download(DownloadArgs),
+    /// Extract a local symbol set binary file (decompress and split)
+    Extract(ExtractArgs),
 }
 
 #[derive(clap::Args, Clone)]
-pub struct Args {
+pub struct DownloadArgs {
     /// Symbol set ID to download. If omitted, lists available symbol sets.
     #[arg(long)]
     pub id: Option<String>,
@@ -26,8 +28,18 @@ pub struct Args {
     pub output: PathBuf,
 }
 
-pub fn download(args: &Args) -> Result<()> {
-    context().capture_command_invoked("sourcemap_download");
+#[derive(clap::Args, Clone)]
+pub struct ExtractArgs {
+    /// Path to the symbol set binary file
+    pub file: PathBuf,
+
+    /// Output directory for extracted files
+    #[arg(short, long, default_value = ".")]
+    pub output: PathBuf,
+}
+
+pub fn download(args: &DownloadArgs) -> Result<()> {
+    context().capture_command_invoked("symbolset_download");
 
     let symbol_set = match &args.id {
         Some(id) => {
@@ -57,66 +69,81 @@ pub fn download(args: &Args) -> Result<()> {
     let data = symbol_sets::download_bytes(&symbol_set.id)?;
     info!("Downloaded {} bytes", data.len());
 
-    fs::create_dir_all(&args.output).context("Failed to create output directory")?;
-
     let base_name = derive_base_name(&symbol_set.r#ref);
-    let data_type = read_data_type(&data)?;
+    extract_symbol_data(&data, &base_name, &args.output)
+}
+
+pub fn extract(args: &ExtractArgs) -> Result<()> {
+    let data = fs::read(&args.file)
+        .context(format!("Failed to read file {}", args.file.display()))?;
+    info!("Read {} bytes from {}", data.len(), args.file.display());
+
+    let base_name = derive_base_name(
+        args.file
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("symbol_set"),
+    );
+    extract_symbol_data(&data, &base_name, &args.output)
+}
+
+fn extract_symbol_data(data: &[u8], base_name: &str, output: &PathBuf) -> Result<()> {
+    fs::create_dir_all(output).context("Failed to create output directory")?;
+
+    let data_type = read_data_type(data)?;
 
     match data_type {
         2 => {
             // SourceAndMap
-            let parsed = read_symbol_data::<SourceAndMap>(data)
+            let parsed = read_symbol_data::<SourceAndMap>(data.to_vec())
                 .context("Failed to parse as SourceAndMap")?;
 
-            let source_path = args.output.join(format!("{base_name}.js"));
+            let source_path = output.join(format!("{base_name}.js"));
             fs::write(&source_path, &parsed.minified_source)
                 .context("Failed to write source file")?;
             info!("Wrote {}", source_path.display());
 
-            let map_path = args.output.join(format!("{base_name}.js.map"));
+            let map_path = output.join(format!("{base_name}.js.map"));
             fs::write(&map_path, &parsed.sourcemap)
                 .context("Failed to write sourcemap file")?;
             info!("Wrote {}", map_path.display());
 
-            println!(
-                "Extracted source and sourcemap to {}",
-                args.output.display()
-            );
+            println!("Extracted source and sourcemap to {}", output.display());
         }
         3 => {
             // HermesMap
-            let parsed =
-                read_symbol_data::<HermesMap>(data).context("Failed to parse as HermesMap")?;
+            let parsed = read_symbol_data::<HermesMap>(data.to_vec())
+                .context("Failed to parse as HermesMap")?;
 
-            let map_path = args.output.join(format!("{base_name}.hbc.map"));
+            let map_path = output.join(format!("{base_name}.hbc.map"));
             fs::write(&map_path, &parsed.sourcemap)
                 .context("Failed to write hermes sourcemap")?;
             info!("Wrote {}", map_path.display());
 
-            println!("Extracted hermes sourcemap to {}", args.output.display());
+            println!("Extracted hermes sourcemap to {}", output.display());
         }
         4 => {
             // ProguardMapping
-            let parsed = read_symbol_data::<ProguardMapping>(data)
+            let parsed = read_symbol_data::<ProguardMapping>(data.to_vec())
                 .context("Failed to parse as ProguardMapping")?;
 
-            let map_path = args.output.join(format!("{base_name}.txt"));
+            let map_path = output.join(format!("{base_name}.txt"));
             fs::write(&map_path, &parsed.content)
                 .context("Failed to write proguard mapping")?;
             info!("Wrote {}", map_path.display());
 
-            println!("Extracted proguard mapping to {}", args.output.display());
+            println!("Extracted proguard mapping to {}", output.display());
         }
         5 => {
             // AppleDsym
-            let parsed =
-                read_symbol_data::<AppleDsym>(data).context("Failed to parse as AppleDsym")?;
+            let parsed = read_symbol_data::<AppleDsym>(data.to_vec())
+                .context("Failed to parse as AppleDsym")?;
 
-            let dsym_path = args.output.join(format!("{base_name}.dSYM"));
+            let dsym_path = output.join(format!("{base_name}.dSYM"));
             fs::write(&dsym_path, &parsed.data).context("Failed to write dSYM file")?;
             info!("Wrote {}", dsym_path.display());
 
-            println!("Extracted dSYM to {}", args.output.display());
+            println!("Extracted dSYM to {}", output.display());
         }
         other => {
             anyhow::bail!("Unknown symbol data type: {other}");

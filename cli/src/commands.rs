@@ -162,7 +162,13 @@ impl Cli {
     }
 
     fn run_impl(self) -> Result<(), CapturedError> {
-        if !matches!(self.command, Commands::Login) {
+        if !matches!(
+            self.command,
+            Commands::Login
+                | Commands::Symbolsets {
+                    cmd: SymbolSetsSubcommand::Extract(_)
+                }
+        ) {
             init_context(
                 self.host.clone(),
                 self.skip_ssl_verification,
@@ -212,6 +218,9 @@ impl Cli {
             Commands::Symbolsets { cmd } => match cmd {
                 SymbolSetsSubcommand::Download(args) => {
                     crate::download::download(&args)?;
+                }
+                SymbolSetsSubcommand::Extract(args) => {
+                    crate::download::extract(&args)?;
                 }
             },
             Commands::Exp { cmd } => match cmd {
