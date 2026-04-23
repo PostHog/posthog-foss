@@ -16289,11 +16289,12 @@ export namespace Schemas {
     * `BuildBetter` - BuildBetter
     * `Convex` - Convex
     * `ClickHouse` - ClickHouse
+    * `Plain` - Plain
      */
-    export type SourceTypeF0aEnum = typeof SourceTypeF0aEnum[keyof typeof SourceTypeF0aEnum];
+    export type SourceTypeEe8Enum = typeof SourceTypeEe8Enum[keyof typeof SourceTypeEe8Enum];
 
 
-    export const SourceTypeF0aEnum = {
+    export const SourceTypeEe8Enum = {
       Ashby: 'Ashby',
       Supabase: 'Supabase',
       CustomerIO: 'CustomerIO',
@@ -16436,6 +16437,7 @@ export namespace Schemas {
       BuildBetter: 'BuildBetter',
       Convex: 'Convex',
       ClickHouse: 'ClickHouse',
+      Plain: 'Plain',
     } as const;
 
     /**
@@ -16449,7 +16451,7 @@ export namespace Schemas {
       readonly status: string;
       client_secret: string;
       account_id: string;
-      readonly source_type: SourceTypeF0aEnum;
+      readonly source_type: SourceTypeEe8Enum;
       /** @nullable */
       readonly latest_error: string | null;
       /**
@@ -23760,7 +23762,7 @@ export namespace Schemas {
       /** @nullable */
       readonly created_by: number | null;
       readonly status: string;
-      readonly source_type: SourceTypeF0aEnum;
+      readonly source_type: SourceTypeEe8Enum;
     }
 
     export type TableColumnsItem = {[key: string]: unknown};
@@ -26067,7 +26069,7 @@ export namespace Schemas {
       readonly status?: string;
       client_secret?: string;
       account_id?: string;
-      readonly source_type?: SourceTypeF0aEnum;
+      readonly source_type?: SourceTypeEe8Enum;
       /** @nullable */
       readonly latest_error?: string | null;
       /**
