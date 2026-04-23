@@ -1173,7 +1173,7 @@ def _resolve_or_create_project_team(
         .first()
     )
     if existing:
-        return existing.team, scoped_teams
+        return _ensure_team_in_token_scopes(access_token, scoped_teams, existing.team)
 
     base_team = Team.objects.get(id=scoped_teams[0])
     project_name = configuration.get("project_name", "Default project")
@@ -1190,30 +1190,55 @@ def _resolve_or_create_project_team(
         )
     except IntegrityError:
         new_team.delete()
-        race_winner = TeamProvisioningConfig.objects.filter(stripe_project_id=project_id).select_related("team").first()
+        race_winner = (
+            TeamProvisioningConfig.objects.filter(
+                stripe_project_id=project_id,
+                team__organization_id__in=Team.objects.filter(id__in=scoped_teams).values("organization_id"),
+            )
+            .select_related("team")
+            .first()
+        )
         if race_winner:
-            return race_winner.team, scoped_teams
-        return base_team, scoped_teams
+            return _ensure_team_in_token_scopes(access_token, scoped_teams, race_winner.team)
+        raise _ProjectIdCollisionError(project_id)
 
-    _add_team_to_token_scopes(access_token, new_team.id)
+    return _ensure_team_in_token_scopes(access_token, scoped_teams, new_team)
 
-    return new_team, [*scoped_teams, new_team.id]
+
+class _ProjectIdCollisionError(Exception):
+    """Raised when a stripe_project_id is already in use by a team outside the caller's orgs."""
+
+    def __init__(self, project_id: str) -> None:
+        super().__init__(project_id)
+        self.project_id = project_id
+
+
+def _ensure_team_in_token_scopes(
+    access_token: OAuthAccessToken, scoped_teams: list[int], team: Team
+) -> tuple[Team, list[int]]:
+    if team.id in scoped_teams:
+        return team, scoped_teams
+    _add_team_to_token_scopes(access_token, team.id)
+    return team, [*scoped_teams, team.id]
 
 
 def _add_team_to_token_scopes(access_token: OAuthAccessToken, team_id: int) -> None:
-    teams = list(access_token.scoped_teams or [])
-    if team_id not in teams:
-        teams.append(team_id)
-        access_token.scoped_teams = teams
-        access_token.save(update_fields=["scoped_teams"])
+    with transaction.atomic():
+        locked_access_token = OAuthAccessToken.objects.select_for_update().get(pk=access_token.pk)
+        teams = list(locked_access_token.scoped_teams or [])
+        if team_id not in teams:
+            teams.append(team_id)
+            locked_access_token.scoped_teams = teams
+            locked_access_token.save(update_fields=["scoped_teams"])
+            access_token.scoped_teams = teams
 
-    refresh_tokens = OAuthRefreshToken.objects.filter(access_token=access_token)
-    for rt in refresh_tokens:
-        rt_teams = list(rt.scoped_teams or [])
-        if team_id not in rt_teams:
-            rt_teams.append(team_id)
-            rt.scoped_teams = rt_teams
-            rt.save(update_fields=["scoped_teams"])
+        refresh_tokens = OAuthRefreshToken.objects.select_for_update().filter(access_token=locked_access_token)
+        for rt in refresh_tokens:
+            rt_teams = list(rt.scoped_teams or [])
+            if team_id not in rt_teams:
+                rt_teams.append(team_id)
+                rt.scoped_teams = rt_teams
+                rt.save(update_fields=["scoped_teams"])
 
 
 def _get_provisioning_service_id(team: Team) -> str:
@@ -1269,9 +1294,19 @@ def provisioning_resources_create(request: Request) -> Response:
     configuration = request.data.get("configuration") or {}
 
     if project_id:
-        team, scoped_teams = _resolve_or_create_project_team(
-            project_id, scoped_teams, user, configuration, access_token
-        )
+        try:
+            team, scoped_teams = _resolve_or_create_project_team(
+                project_id, scoped_teams, user, configuration, access_token
+            )
+        except _ProjectIdCollisionError:
+            _capture_provisioning_event(
+                "resource_created", "error", error_code="project_id_conflict", project_id=project_id
+            )
+            return _error_response(
+                "project_id_conflict",
+                "Project ID already linked to another organization",
+                status=409,
+            )
     else:
         team_id = scoped_teams[0]
         try:
