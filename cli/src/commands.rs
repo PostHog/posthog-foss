@@ -191,21 +191,15 @@ impl Cli {
                 }
                 SourcemapCommand::Process(args) => {
                     let (inject_args, upload_args) = args.resolve_stdin()?.into();
-                    let cwd = std::env::current_dir()
-                        .context("Failed to determine current directory")?;
+                    let cwd =
+                        std::env::current_dir().context("Failed to determine current directory")?;
                     let release = crate::sourcemaps::inject::get_release_for_maps(
                         &cwd,
                         inject_args.release.clone(),
                         std::iter::empty(),
                     )?;
-                    crate::sourcemaps::plain::inject::inject(
-                        &inject_args,
-                        release.as_ref(),
-                    )?;
-                    crate::sourcemaps::plain::upload::upload(
-                        &upload_args,
-                        release.as_ref(),
-                    )?;
+                    crate::sourcemaps::plain::inject::inject(&inject_args, release.as_ref())?;
+                    crate::sourcemaps::plain::upload::upload(&upload_args, release.as_ref())?;
                 }
             },
             Commands::Dsym { cmd } => match cmd {
