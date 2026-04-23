@@ -7425,6 +7425,8 @@ export namespace Schemas {
      * * `slack_channel_message` - Channel message
     * `slack_bot_mention` - Bot mention
     * `slack_emoji_reaction` - Emoji reaction
+    * `teams_channel_message` - Teams channel message
+    * `teams_bot_mention` - Teams bot mention
     * `widget_embedded` - Widget
     * `widget_api` - API
      */
@@ -7435,6 +7437,8 @@ export namespace Schemas {
       SlackChannelMessage: 'slack_channel_message',
       SlackBotMention: 'slack_bot_mention',
       SlackEmojiReaction: 'slack_emoji_reaction',
+      TeamsChannelMessage: 'teams_channel_message',
+      TeamsBotMention: 'teams_bot_mention',
       WidgetEmbedded: 'widget_embedded',
       WidgetApi: 'widget_api',
     } as const;
@@ -7443,6 +7447,7 @@ export namespace Schemas {
      * * `widget` - Widget
     * `email` - Email
     * `slack` - Slack
+    * `teams` - Microsoft Teams
      */
     export type ChannelSourceEnum = typeof ChannelSourceEnum[keyof typeof ChannelSourceEnum];
 
@@ -7451,6 +7456,7 @@ export namespace Schemas {
       Widget: 'widget',
       Email: 'email',
       Slack: 'slack',
+      Teams: 'teams',
     } as const;
 
     export type DisplayType = typeof DisplayType[keyof typeof DisplayType];
@@ -39505,6 +39511,8 @@ export namespace Schemas {
       SlackBotMention: 'slack_bot_mention',
       SlackChannelMessage: 'slack_channel_message',
       SlackEmojiReaction: 'slack_emoji_reaction',
+      TeamsBotMention: 'teams_bot_mention',
+      TeamsChannelMessage: 'teams_channel_message',
       WidgetApi: 'widget_api',
       WidgetEmbedded: 'widget_embedded',
     } as const;
@@ -39515,6 +39523,7 @@ export namespace Schemas {
     export const ConversationsTicketsListChannelSource = {
       Email: 'email',
       Slack: 'slack',
+      Teams: 'teams',
       Widget: 'widget',
     } as const;
 
