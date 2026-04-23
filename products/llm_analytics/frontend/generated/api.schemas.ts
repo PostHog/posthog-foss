@@ -1760,10 +1760,20 @@ export interface LLMSkillApi {
 export type PatchedLLMSkillPublishApiMetadata = { [key: string]: unknown }
 
 export interface LLMSkillEditOperationApi {
-    /** Text to find in the current skill body. Must match exactly once. */
+    /** Text to find in the target content. Must match exactly once. */
     old: string
     /** Replacement text. */
     new: string
+}
+
+export interface LLMSkillFileEditApi {
+    /**
+     * Path of the bundled file to edit. Must match an existing file on the current skill version.
+     * @maxLength 500
+     */
+    path: string
+    /** Sequential find/replace operations to apply to this file's content. */
+    edits: LLMSkillEditOperationApi[]
 }
 
 export interface PatchedLLMSkillPublishApi {
@@ -1790,8 +1800,10 @@ export interface PatchedLLMSkillPublishApi {
     allowed_tools?: string[]
     /** Arbitrary key-value metadata. */
     metadata?: PatchedLLMSkillPublishApiMetadata
-    /** Bundled files to include with this version. Replaces all files from the previous version. */
+    /** Bundled files to include with this version. Replaces all files from the previous version. Mutually exclusive with file_edits. */
     files?: LLMSkillFileInputApi[]
+    /** Per-file find/replace updates. Each entry targets one existing file by path and applies sequential edits to its content. Non-targeted files carry forward unchanged. Cannot add, remove, or rename files — use 'files' for that. Mutually exclusive with files. */
+    file_edits?: LLMSkillFileEditApi[]
     /**
      * Latest version you are editing from. Used for optimistic concurrency checks.
      * @minimum 1
