@@ -7716,6 +7716,7 @@ export namespace Schemas {
     * `acceptEdits` - acceptEdits
     * `plan` - plan
     * `bypassPermissions` - bypassPermissions
+    * `auto` - auto
      */
     export type ClaudeTaskRunCreateSchemaInitialPermissionModeEnum = typeof ClaudeTaskRunCreateSchemaInitialPermissionModeEnum[keyof typeof ClaudeTaskRunCreateSchemaInitialPermissionModeEnum];
 
@@ -7725,6 +7726,7 @@ export namespace Schemas {
       AcceptEdits: 'acceptEdits',
       Plan: 'plan',
       BypassPermissions: 'bypassPermissions',
+      Auto: 'auto',
     } as const;
 
     /**
@@ -7782,7 +7784,8 @@ export namespace Schemas {
     * `default` - default
     * `acceptEdits` - acceptEdits
     * `plan` - plan
-    * `bypassPermissions` - bypassPermissions */
+    * `bypassPermissions` - bypassPermissions
+    * `auto` - auto */
       initial_permission_mode?: ClaudeTaskRunCreateSchemaInitialPermissionModeEnum;
     }
 
