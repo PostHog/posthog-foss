@@ -20103,6 +20103,26 @@ export namespace Schemas {
       content_type?: string;
     }
 
+    export interface LLMSkillFileCreate {
+      /**
+       * File path relative to skill root, e.g. 'scripts/setup.sh' or 'references/guide.md'.
+       * @maxLength 500
+       */
+      path: string;
+      /** Text content of the file. */
+      content: string;
+      /**
+       * MIME type of the file content.
+       * @maxLength 100
+       */
+      content_type?: string;
+      /**
+       * Latest version you are editing from. If provided, the request fails with 409 when another write has landed in the meantime.
+       * @minimum 1
+       */
+      base_version?: number;
+    }
+
     export interface LLMSkillFileEdit {
       /**
        * Path of the bundled file to edit. Must match an existing file on the current skill version.
@@ -20111,6 +20131,24 @@ export namespace Schemas {
       path: string;
       /** Sequential find/replace operations to apply to this file's content. */
       edits: LLMSkillEditOperation[];
+    }
+
+    export interface LLMSkillFileRename {
+      /**
+       * Current file path to rename.
+       * @maxLength 500
+       */
+      old_path: string;
+      /**
+       * New file path. Must not already exist in the skill.
+       * @maxLength 500
+       */
+      new_path: string;
+      /**
+       * Latest version you are editing from. If provided, the request fails with 409 when another write has landed in the meantime.
+       * @minimum 1
+       */
+      base_version?: number;
     }
 
     /**
@@ -38368,6 +38406,14 @@ export namespace Schemas {
      * @minimum 1
      */
     version?: number;
+    };
+
+    export type LlmSkillsNameFilesDestroyParams = {
+    /**
+     * Latest version you are editing from. If provided, the request fails with 409 when another write has landed in the meantime.
+     * @minimum 1
+     */
+    base_version?: number;
     };
 
     export type LlmSkillsResolveNameRetrieveParams = {
