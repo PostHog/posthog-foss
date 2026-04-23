@@ -4,11 +4,11 @@ from posthog.models.oauth import OAuthAccessToken
 from posthog.models.personal_api_key import PersonalAPIKey
 from posthog.models.team.team import Team
 
-from ee.api.agentic_provisioning.test.base import HMAC_SECRET, StripeProvisioningTestBase
+from ee.api.agentic_provisioning.test.base import HMAC_SECRET, ProvisioningTestBase
 
 
 @override_settings(STRIPE_SIGNING_SECRET=HMAC_SECRET)
-class TestProvisioningResources(StripeProvisioningTestBase):
+class TestProvisioningResources(ProvisioningTestBase):
     def test_create_resource_returns_complete(self):
         token = self._get_bearer_token()
         res = self._post_signed_with_bearer(
@@ -118,7 +118,7 @@ class TestProvisioningResources(StripeProvisioningTestBase):
         )
         assert PersonalAPIKey.objects.filter(user=self.user).count() == initial_count + 1
 
-    def test_create_resource_pat_label_contains_stripe_projects(self):
+    def test_create_resource_pat_label_contains_provisioning_prefix(self):
         token = self._get_bearer_token()
         self._post_signed_with_bearer(
             "/api/agentic/provisioning/resources",
@@ -144,8 +144,8 @@ class TestProvisioningResources(StripeProvisioningTestBase):
             data={"service_id": "analytics"},
             token=token,
         )
-        stripe_pats = PersonalAPIKey.objects.filter(user=self.user, label__startswith="Stripe Projects")
-        assert stripe_pats.count() == 2
+        provisioning_pats = PersonalAPIKey.objects.filter(user=self.user, label__startswith="Stripe Projects")
+        assert provisioning_pats.count() == 2
         assert PersonalAPIKey.objects.filter(id=first_pat.id).exists()
 
     def test_create_resource_with_project_id_creates_new_team(self):
