@@ -21225,6 +21225,30 @@ export namespace Schemas {
       _create_in_folder?: string;
     }
 
+    /**
+     * * `replay` - REPLAY
+    * `notebook` - NOTEBOOK
+    * `insight` - INSIGHT
+    * `feature_flag` - FEATURE_FLAG
+    * `dashboard` - DASHBOARD
+    * `survey` - SURVEY
+    * `experiment` - EXPERIMENT
+    * `error_tracking` - ERROR_TRACKING
+     */
+    export type NotificationEventSourceTypeEnum = typeof NotificationEventSourceTypeEnum[keyof typeof NotificationEventSourceTypeEnum];
+
+
+    export const NotificationEventSourceTypeEnum = {
+      Replay: 'replay',
+      Notebook: 'notebook',
+      Insight: 'insight',
+      FeatureFlag: 'feature_flag',
+      Dashboard: 'dashboard',
+      Survey: 'survey',
+      Experiment: 'experiment',
+      ErrorTracking: 'error_tracking',
+    } as const;
+
     export interface NotificationEvent {
       id: string;
       /** @nullable */
@@ -21240,8 +21264,7 @@ export namespace Schemas {
       resource_type: string | null;
       resource_id: string;
       source_url: string;
-      /** @nullable */
-      source_type: string | null;
+      source_type: NotificationEventSourceTypeEnum | NullEnum | null;
       /** @nullable */
       source_id: string | null;
       created_at: string;
