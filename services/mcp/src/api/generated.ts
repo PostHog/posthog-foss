@@ -38251,6 +38251,11 @@ export namespace Schemas {
     offset?: number;
     };
 
+    /**
+     * Unspecified response body
+     */
+    export type ErrorTrackingSymbolSetsDownloadRetrieve200 = {[key: string]: unknown};
+
     export type EvaluationsListParams = {
     /**
      * Filter by enabled status
@@ -40141,6 +40146,11 @@ export namespace Schemas {
      */
     offset?: number;
     };
+
+    /**
+     * Unspecified response body
+     */
+    export type ErrorTrackingSymbolSetsDownloadRetrieve2200 = {[key: string]: unknown};
 
     export type EventDefinitionsListParams = {
     /**
