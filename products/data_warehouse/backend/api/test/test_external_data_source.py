@@ -61,6 +61,7 @@ from products.data_warehouse.backend.models.external_data_schema import sync_fre
 from products.data_warehouse.backend.models.join import DataWarehouseJoin
 from products.data_warehouse.backend.models.revenue_analytics_config import ExternalDataSourceRevenueAnalyticsConfig
 from products.data_warehouse.backend.models.table import DataWarehouseTable
+from products.data_warehouse.backend.types import IncrementalFieldType
 from products.revenue_analytics.backend.joins import get_customer_revenue_view_name
 
 
@@ -719,6 +720,58 @@ class TestExternalDataSource(APIBaseTest):
         # stripe_secret_key must still be in the DB
         source.refresh_from_db()
         assert source.job_inputs["auth_method"]["stripe_secret_key"] == "sk_test_123"
+
+    @patch(
+        "posthog.temporal.data_imports.sources.snowflake.source.SnowflakeSource.validate_credentials",
+        return_value=(True, None),
+    )
+    def test_update_after_get_preserves_snowflake_keypair_private_key(self, _mock_validate):
+        """Regression: Snowflake's keypair auth uses `auth_type` (not `auth_method`).
+        After redaction, a PATCH that doesn't re-supply private_key must not wipe it.
+        """
+        source = ExternalDataSource.objects.create(
+            team_id=self.team.pk,
+            source_id=str(uuid.uuid4()),
+            connection_id=str(uuid.uuid4()),
+            destination_id=str(uuid.uuid4()),
+            source_type="Snowflake",
+            created_by=self.user,
+            prefix="snowflake-test",
+            job_inputs={
+                "account_id": "abc-123",
+                "database": "MY_DB",
+                "warehouse": "COMPUTE_WH",
+                "schema": "PUBLIC",
+                "auth_type": {
+                    "selection": "keypair",
+                    "user": "myuser",
+                    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----",
+                    "passphrase": "secret-passphrase",
+                },
+            },
+        )
+
+        # GET strips private_key and passphrase from auth_type
+        get_response = self.client.get(f"/api/environments/{self.team.pk}/external_data_sources/{source.pk}")
+        assert get_response.status_code == 200
+        get_data = get_response.json()
+        assert "private_key" not in get_data["job_inputs"]["auth_type"]
+        assert "passphrase" not in get_data["job_inputs"]["auth_type"]
+        assert get_data["job_inputs"]["auth_type"]["user"] == "myuser"
+
+        # PATCH with the redacted data (simulating a save without re-pasting credentials)
+        patch_response = self.client.patch(
+            f"/api/environments/{self.team.pk}/external_data_sources/{source.pk}/",
+            data={"job_inputs": get_data["job_inputs"]},
+        )
+        assert patch_response.status_code == 200, patch_response.json()
+
+        # Sensitive fields nested in auth_type must still be in the DB
+        source.refresh_from_db()
+        assert source.job_inputs["auth_type"]["selection"] == "keypair"
+        assert source.job_inputs["auth_type"]["user"] == "myuser"
+        assert source.job_inputs["auth_type"]["private_key"].startswith("-----BEGIN PRIVATE KEY-----")
+        assert source.job_inputs["auth_type"]["passphrase"] == "secret-passphrase"
 
     @patch(
         "posthog.temporal.data_imports.sources.stripe.source.StripeSource.validate_credentials",
@@ -1901,6 +1954,94 @@ class TestExternalDataSource(APIBaseTest):
 
         mock_add_table_to_cdc_publication.assert_called_once()
         assert mock_add_table_to_cdc_publication.call_args.args[1:] == ("test_pub", "analytics", "events")
+
+    @parameterized.expand(
+        [
+            # Frontend sends null when the user leaves the PK selector empty — backend falls
+            # back to the source-detected primary key so sync-time detection is not the only
+            # line of defense.
+            ("fallback_to_detected", None, ["id"], ["id"]),
+            # User explicitly overrides — caller value wins, detected is ignored.
+            ("explicit_wins_over_detected", ["custom_pk"], ["id"], ["custom_pk"]),
+            # Nothing detected and nothing provided — key omitted from sync_type_config
+            # entirely (preserves pre-existing behaviour for tables without a PK).
+            ("both_absent_omits_key", None, None, None),
+        ]
+    )
+    @patch("products.data_warehouse.backend.api.external_data_source.SourceRegistry.get_source")
+    def test_create_postgres_incremental_primary_key_fallback(
+        self,
+        _name: str,
+        payload_primary_keys: list[str] | None,
+        detected_primary_keys: list[str] | None,
+        expected_persisted: list[str] | None,
+        mock_get_source,
+    ):
+        source_mock = mock_get_source.return_value
+        source_mock.validate_config.return_value = (True, [])
+        parsed_config = Mock()
+        parsed_config.schema = "public"
+        parsed_config.to_dict.return_value = {
+            "host": "localhost",
+            "port": 5432,
+            "database": "app",
+            "user": "user",
+            "password": "pass",
+            "schema": "public",
+        }
+        source_mock.parse_config.return_value = parsed_config
+        source_mock.validate_credentials.return_value = (True, None)
+        source_mock.get_schemas.return_value = [
+            SourceSchema(
+                name="events",
+                supports_incremental=True,
+                supports_append=True,
+                columns=[("id", "integer", False), ("updated_at", "timestamp", False)],
+                foreign_keys=[],
+                incremental_fields=[
+                    {
+                        "label": "updated_at",
+                        "type": IncrementalFieldType.Timestamp,
+                        "field": "updated_at",
+                        "field_type": IncrementalFieldType.Timestamp,
+                        "nullable": False,
+                    }
+                ],
+                detected_primary_keys=detected_primary_keys,
+            ),
+        ]
+
+        response = self.client.post(
+            f"/api/environments/{self.team.pk}/external_data_sources/",
+            data={
+                "source_type": "Postgres",
+                "payload": {
+                    "host": "localhost",
+                    "port": 5432,
+                    "database": "app",
+                    "user": "user",
+                    "password": "pass",
+                    "schema": "public",
+                    "schemas": [
+                        {
+                            "name": "events",
+                            "should_sync": True,
+                            "sync_type": "incremental",
+                            "incremental_field": "updated_at",
+                            "incremental_field_type": "timestamp",
+                            "primary_key_columns": payload_primary_keys,
+                        },
+                    ],
+                },
+            },
+        )
+
+        assert response.status_code == status.HTTP_201_CREATED, response.content
+        schema = ExternalDataSchema.objects.get(team_id=self.team.pk, name="events")
+        if expected_persisted is None:
+            assert "primary_key_columns" not in schema.sync_type_config
+        else:
+            assert schema.sync_type_config["primary_key_columns"] == expected_persisted
 
     def test_create_direct_non_postgres_is_rejected(self):
         response = self.client.post(
@@ -4413,7 +4554,12 @@ class TestSensitiveFieldClassification(APIBaseTest):
     def test_classifies_password_fields_as_sensitive(self):
         fields: list[FieldType] = [
             SourceFieldInputConfig(
-                name="host", label="Host", placeholder="", required=True, type=SourceFieldInputConfigType.TEXT
+                name="host",
+                label="Host",
+                placeholder="",
+                required=True,
+                type=SourceFieldInputConfigType.TEXT,
+                secret=False,
             ),
             SourceFieldInputConfig(
                 name="password",
@@ -4421,6 +4567,7 @@ class TestSensitiveFieldClassification(APIBaseTest):
                 placeholder="",
                 required=True,
                 type=SourceFieldInputConfigType.PASSWORD,
+                secret=True,
             ),
         ]
         nonsensitive, sensitive = get_nonsensitive_and_sensitive_field_names(fields)
@@ -4460,6 +4607,7 @@ class TestSensitiveFieldClassification(APIBaseTest):
                                 placeholder="",
                                 required=True,
                                 type=SourceFieldInputConfigType.TEXT,
+                                secret=False,
                             ),
                             SourceFieldInputConfig(
                                 name="password",
@@ -4467,6 +4615,7 @@ class TestSensitiveFieldClassification(APIBaseTest):
                                 placeholder="",
                                 required=True,
                                 type=SourceFieldInputConfigType.PASSWORD,
+                                secret=True,
                             ),
                         ],
                     ),
@@ -4490,6 +4639,31 @@ class TestSensitiveFieldClassification(APIBaseTest):
         assert "password" in sensitive
         assert "passphrase" in sensitive
         assert "private_key" in sensitive
+
+    def test_classifies_secret_flag_as_sensitive_regardless_of_type(self):
+        fields: list[FieldType] = [
+            SourceFieldInputConfig(
+                name="client_private_key",
+                label="Client private key",
+                placeholder="",
+                required=True,
+                type=SourceFieldInputConfigType.TEXTAREA,
+                secret=True,
+            ),
+            SourceFieldInputConfig(
+                name="namespace",
+                label="Namespace",
+                placeholder="",
+                required=True,
+                type=SourceFieldInputConfigType.TEXT,
+                secret=False,
+            ),
+        ]
+        nonsensitive, sensitive = get_nonsensitive_and_sensitive_field_names(fields)
+        assert "client_private_key" in sensitive
+        assert "client_private_key" not in nonsensitive
+        assert "namespace" in nonsensitive
+        assert "namespace" not in sensitive
 
     def test_strip_sensitive_from_dict_basic(self):
         data = {"host": "localhost", "password": "secret", "unknown_key": "val"}
@@ -4539,6 +4713,7 @@ class TestSensitiveFieldClassification(APIBaseTest):
                             placeholder="",
                             required=True,
                             type=SourceFieldInputConfigType.TEXT,
+                            secret=False,
                         ),
                     ],
                 ),
@@ -4558,6 +4733,7 @@ class TestSensitiveFieldClassification(APIBaseTest):
                 placeholder="",
                 required=True,
                 type=SourceFieldInputConfigType.TEXT,
+                secret=False,
             ),
             SourceFieldSwitchGroupConfig(
                 name="temporary-dataset",
@@ -4572,6 +4748,7 @@ class TestSensitiveFieldClassification(APIBaseTest):
                             placeholder="",
                             required=True,
                             type=SourceFieldInputConfigType.TEXT,
+                            secret=False,
                         ),
                     ],
                 ),
@@ -4600,6 +4777,37 @@ class TestSensitiveFieldClassification(APIBaseTest):
             # No field should appear in both sets
             overlap = nonsensitive & sensitive
             assert not overlap, f"{config.name}: fields in both sets: {overlap}"
+
+    def test_password_typed_fields_must_be_marked_secret(self):
+        """A field rendered as type=PASSWORD that is not also `secret=True` is a misconfiguration:
+        it would obscure on screen but still be returned in plain text from the API.
+        """
+
+        def collect_password_fields_without_secret(fields: list[FieldType]) -> list[str]:
+            offenders: list[str] = []
+            for field in fields:
+                if isinstance(field, SourceFieldInputConfig):
+                    if field.type == SourceFieldInputConfigType.PASSWORD and not field.secret:
+                        offenders.append(field.name)
+                elif isinstance(field, SourceFieldSwitchGroupConfig):
+                    offenders.extend(collect_password_fields_without_secret(field.fields))
+                elif isinstance(field, SourceFieldSelectConfig):
+                    for option in field.options:
+                        if option.fields:
+                            offenders.extend(collect_password_fields_without_secret(option.fields))
+            return offenders
+
+        all_offenders: dict[str, list[str]] = {}
+        for source in SourceRegistry.get_all_sources().values():
+            config = source.get_source_config
+            offenders = collect_password_fields_without_secret(config.fields)
+            if offenders:
+                all_offenders[config.name] = offenders
+
+        assert not all_offenders, (
+            f"PASSWORD-typed fields must also set secret=True to be redacted from API responses. "
+            f"Offending fields: {all_offenders}"
+        )
 
     def test_dynamic_classification_covers_old_hardcoded_allowlist(self):
         """Regression: all fields from the old hardcoded allowlist should be in the dynamic nonsensitive set."""
@@ -5128,3 +5336,20 @@ class TestDestroySourceCleansUpCompanionTables(APIBaseTest):
         # Unrelated table NOT deleted
         unrelated_table.refresh_from_db()
         assert unrelated_table.deleted is False
+
+
+class TestExternalDataSourceCreateSerializerValidation(APIBaseTest):
+    @parameterized.expand(
+        [
+            ("missing_source_type", {"payload": {"host": "localhost"}}),
+            ("missing_payload", {"source_type": "Postgres"}),
+            ("invalid_source_type", {"source_type": "InvalidType", "payload": {"host": "localhost"}}),
+        ]
+    )
+    def test_create_rejects_invalid_input(self, _name: str, data: dict) -> None:
+        response = self.client.post(
+            f"/api/environments/{self.team.pk}/external_data_sources/",
+            data,
+            format="json",
+        )
+        assert response.status_code == 400
