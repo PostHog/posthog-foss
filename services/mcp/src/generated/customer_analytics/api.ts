@@ -1,30 +1,46 @@
 /**
- * Auto-generated Zod validation schemas from the Django backend OpenAPI schema.
- * To modify these schemas, update the Django serializers or views, then run:
- *   hogli build:openapi
- * Questions or issues? #team-devex on Slack
+ * Auto-generated from the Django backend OpenAPI schema.
+ * MCP service uses these Zod schemas for generated tool handlers.
+ * To regenerate: hogli build:openapi
  *
- * PostHog API - generated
+ * PostHog API - MCP 5 enabled ops
  * OpenAPI spec version: 1.0.0
  */
 import * as zod from 'zod'
 
-export const customerJourneysCreateBodyNameMax = 400
+export const groupsTypesMetricsListPathGroupTypeIndexMin = -2147483648
+export const groupsTypesMetricsListPathGroupTypeIndexMax = 2147483647
 
-export const CustomerJourneysCreateBody = /* @__PURE__ */ zod.object({
-    insight: zod.number(),
-    name: zod.string().max(customerJourneysCreateBodyNameMax),
-    description: zod.string().nullish(),
+export const GroupsTypesMetricsListParams = /* @__PURE__ */ zod.object({
+    group_type_index: zod
+        .number()
+        .min(groupsTypesMetricsListPathGroupTypeIndexMin)
+        .max(groupsTypesMetricsListPathGroupTypeIndexMax),
+    project_id: zod
+        .string()
+        .describe(
+            "Project ID of the project you're trying to access. To find the ID of the project, make a call to /api/projects/."
+        ),
 })
 
-export const CustomerProfileConfigsCreateBody = /* @__PURE__ */ zod.object({
-    scope: zod
-        .enum(['person', 'group_0', 'group_1', 'group_2', 'group_3', 'group_4'])
+export const GroupsTypesMetricsListQueryParams = /* @__PURE__ */ zod.object({
+    limit: zod.number().optional().describe('Number of results to return per page.'),
+    offset: zod.number().optional().describe('The initial index from which to return the results.'),
+})
+
+export const groupsTypesMetricsCreatePathGroupTypeIndexMin = -2147483648
+export const groupsTypesMetricsCreatePathGroupTypeIndexMax = 2147483647
+
+export const GroupsTypesMetricsCreateParams = /* @__PURE__ */ zod.object({
+    group_type_index: zod
+        .number()
+        .min(groupsTypesMetricsCreatePathGroupTypeIndexMin)
+        .max(groupsTypesMetricsCreatePathGroupTypeIndexMax),
+    project_id: zod
+        .string()
         .describe(
-            '* `person` - Person\n* `group_0` - Group 0\n* `group_1` - Group 1\n* `group_2` - Group 2\n* `group_3` - Group 3\n* `group_4` - Group 4'
+            "Project ID of the project you're trying to access. To find the ID of the project, make a call to /api/projects/."
         ),
-    content: zod.unknown().nullish(),
-    sidebar: zod.unknown().nullish(),
 })
 
 export const groupsTypesMetricsCreateBodyNameMax = 255
@@ -77,62 +93,40 @@ export const GroupsTypesMetricsCreateBody = /* @__PURE__ */ zod.object({
         .describe('Event property to sum. Required when `math` is `sum` and forbidden when `math` is `count`.'),
 })
 
-export const groupsTypesMetricsUpdateBodyNameMax = 255
+export const groupsTypesMetricsRetrievePathGroupTypeIndexMin = -2147483648
+export const groupsTypesMetricsRetrievePathGroupTypeIndexMax = 2147483647
 
-export const groupsTypesMetricsUpdateBodyFormatDefault = `numeric`
-export const groupsTypesMetricsUpdateBodyIntervalDefault = 7
-export const groupsTypesMetricsUpdateBodyDisplayDefault = `number`
-export const groupsTypesMetricsUpdateBodyMathDefault = `count`
-export const groupsTypesMetricsUpdateBodyMathPropertyMax = 255
-
-export const GroupsTypesMetricsUpdateBody = /* @__PURE__ */ zod.object({
-    name: zod
-        .string()
-        .max(groupsTypesMetricsUpdateBodyNameMax)
-        .describe('Name of the usage metric. Must be unique per group type within the project.'),
-    format: zod
-        .enum(['numeric', 'currency'])
-        .describe('* `numeric` - numeric\n* `currency` - currency')
-        .default(groupsTypesMetricsUpdateBodyFormatDefault)
-        .describe(
-            'How the metric value is formatted in the UI. One of `numeric` or `currency`.\n\n* `numeric` - numeric\n* `currency` - currency'
-        ),
-    interval: zod
+export const GroupsTypesMetricsRetrieveParams = /* @__PURE__ */ zod.object({
+    group_type_index: zod
         .number()
-        .default(groupsTypesMetricsUpdateBodyIntervalDefault)
-        .describe('Rolling time window in days used to compute the metric. Defaults to 7.'),
-    display: zod
-        .enum(['number', 'sparkline'])
-        .describe('* `number` - number\n* `sparkline` - sparkline')
-        .default(groupsTypesMetricsUpdateBodyDisplayDefault)
-        .describe(
-            'Visual representation in the UI. One of `number` or `sparkline`.\n\n* `number` - number\n* `sparkline` - sparkline'
-        ),
-    filters: zod
-        .record(zod.string(), zod.unknown())
-        .describe(
-            'HogQL filter definition used to compute the metric. Same shape as HogFunction filters: a dict containing an `events` list and optional `properties` list.'
-        ),
-    math: zod
-        .enum(['count', 'sum'])
-        .describe('* `count` - count\n* `sum` - sum')
-        .default(groupsTypesMetricsUpdateBodyMathDefault)
-        .describe(
-            'Aggregation function. `count` counts matching events; `sum` sums the value of `math_property` on matching events.\n\n* `count` - count\n* `sum` - sum'
-        ),
-    math_property: zod
+        .min(groupsTypesMetricsRetrievePathGroupTypeIndexMin)
+        .max(groupsTypesMetricsRetrievePathGroupTypeIndexMax),
+    id: zod.string().describe('A UUID string identifying this group usage metric.'),
+    project_id: zod
         .string()
-        .max(groupsTypesMetricsUpdateBodyMathPropertyMax)
-        .nullish()
-        .describe('Event property to sum. Required when `math` is `sum` and forbidden when `math` is `count`.'),
+        .describe(
+            "Project ID of the project you're trying to access. To find the ID of the project, make a call to /api/projects/."
+        ),
+})
+
+export const groupsTypesMetricsPartialUpdatePathGroupTypeIndexMin = -2147483648
+export const groupsTypesMetricsPartialUpdatePathGroupTypeIndexMax = 2147483647
+
+export const GroupsTypesMetricsPartialUpdateParams = /* @__PURE__ */ zod.object({
+    group_type_index: zod
+        .number()
+        .min(groupsTypesMetricsPartialUpdatePathGroupTypeIndexMin)
+        .max(groupsTypesMetricsPartialUpdatePathGroupTypeIndexMax),
+    id: zod.string().describe('A UUID string identifying this group usage metric.'),
+    project_id: zod
+        .string()
+        .describe(
+            "Project ID of the project you're trying to access. To find the ID of the project, make a call to /api/projects/."
+        ),
 })
 
 export const groupsTypesMetricsPartialUpdateBodyNameMax = 255
 
-export const groupsTypesMetricsPartialUpdateBodyFormatDefault = `numeric`
-export const groupsTypesMetricsPartialUpdateBodyIntervalDefault = 7
-export const groupsTypesMetricsPartialUpdateBodyDisplayDefault = `number`
-export const groupsTypesMetricsPartialUpdateBodyMathDefault = `count`
 export const groupsTypesMetricsPartialUpdateBodyMathPropertyMax = 255
 
 export const GroupsTypesMetricsPartialUpdateBody = /* @__PURE__ */ zod.object({
@@ -144,18 +138,18 @@ export const GroupsTypesMetricsPartialUpdateBody = /* @__PURE__ */ zod.object({
     format: zod
         .enum(['numeric', 'currency'])
         .describe('* `numeric` - numeric\n* `currency` - currency')
-        .default(groupsTypesMetricsPartialUpdateBodyFormatDefault)
+        .optional()
         .describe(
             'How the metric value is formatted in the UI. One of `numeric` or `currency`.\n\n* `numeric` - numeric\n* `currency` - currency'
         ),
     interval: zod
         .number()
-        .default(groupsTypesMetricsPartialUpdateBodyIntervalDefault)
+        .optional()
         .describe('Rolling time window in days used to compute the metric. Defaults to 7.'),
     display: zod
         .enum(['number', 'sparkline'])
         .describe('* `number` - number\n* `sparkline` - sparkline')
-        .default(groupsTypesMetricsPartialUpdateBodyDisplayDefault)
+        .optional()
         .describe(
             'Visual representation in the UI. One of `number` or `sparkline`.\n\n* `number` - number\n* `sparkline` - sparkline'
         ),
@@ -168,7 +162,7 @@ export const GroupsTypesMetricsPartialUpdateBody = /* @__PURE__ */ zod.object({
     math: zod
         .enum(['count', 'sum'])
         .describe('* `count` - count\n* `sum` - sum')
-        .default(groupsTypesMetricsPartialUpdateBodyMathDefault)
+        .optional()
         .describe(
             'Aggregation function. `count` counts matching events; `sum` sums the value of `math_property` on matching events.\n\n* `count` - count\n* `sum` - sum'
         ),
@@ -177,4 +171,20 @@ export const GroupsTypesMetricsPartialUpdateBody = /* @__PURE__ */ zod.object({
         .max(groupsTypesMetricsPartialUpdateBodyMathPropertyMax)
         .nullish()
         .describe('Event property to sum. Required when `math` is `sum` and forbidden when `math` is `count`.'),
+})
+
+export const groupsTypesMetricsDestroyPathGroupTypeIndexMin = -2147483648
+export const groupsTypesMetricsDestroyPathGroupTypeIndexMax = 2147483647
+
+export const GroupsTypesMetricsDestroyParams = /* @__PURE__ */ zod.object({
+    group_type_index: zod
+        .number()
+        .min(groupsTypesMetricsDestroyPathGroupTypeIndexMin)
+        .max(groupsTypesMetricsDestroyPathGroupTypeIndexMax),
+    id: zod.string().describe('A UUID string identifying this group usage metric.'),
+    project_id: zod
+        .string()
+        .describe(
+            "Project ID of the project you're trying to access. To find the ID of the project, make a call to /api/projects/."
+        ),
 })
