@@ -37059,10 +37059,6 @@ export namespace Schemas {
     checks_offset?: number;
     };
 
-    export type EnvironmentsAppMetricsRetrieve200 = {[key: string]: unknown};
-
-    export type EnvironmentsAppMetricsHistoricalExportsRetrieve200 = {[key: string]: unknown};
-
     export type EnvironmentsBatchExportsListParams = {
     /**
      * Number of results to return per page.
@@ -40890,10 +40886,6 @@ export namespace Schemas {
      */
     search?: string;
     };
-
-    export type AppMetricsRetrieve200 = {[key: string]: unknown};
-
-    export type AppMetricsHistoricalExportsRetrieve200 = {[key: string]: unknown};
 
     export type BatchExportsListParams = {
     /**
