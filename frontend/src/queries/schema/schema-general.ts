@@ -5633,6 +5633,7 @@ export const externalDataSources = [
     'Convex',
     'ClickHouse',
     'Plain',
+    'Resend',
 ] as const
 
 export type ExternalDataSourceType = (typeof externalDataSources)[number]
