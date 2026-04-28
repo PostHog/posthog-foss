@@ -7730,6 +7730,7 @@ export namespace Schemas {
      * * `low` - low
     * `medium` - medium
     * `high` - high
+    * `xhigh` - xhigh
     * `max` - max
      */
     export type ReasoningEffortEnum = typeof ReasoningEffortEnum[keyof typeof ReasoningEffortEnum];
@@ -7739,6 +7740,7 @@ export namespace Schemas {
       Low: 'low',
       Medium: 'medium',
       High: 'high',
+      Xhigh: 'xhigh',
       Max: 'max',
     } as const;
 
@@ -7806,6 +7808,7 @@ export namespace Schemas {
     * `low` - low
     * `medium` - medium
     * `high` - high
+    * `xhigh` - xhigh
     * `max` - max */
       reasoning_effort?: ReasoningEffortEnum;
       /** Ephemeral GitHub user token from PostHog Code for user-authored cloud pull requests. */
@@ -8120,6 +8123,7 @@ export namespace Schemas {
     * `low` - low
     * `medium` - medium
     * `high` - high
+    * `xhigh` - xhigh
     * `max` - max */
       reasoning_effort?: ReasoningEffortEnum;
       /** Ephemeral GitHub user token from PostHog Code for user-authored cloud pull requests. */
@@ -36020,6 +36024,7 @@ export namespace Schemas {
     * `low` - low
     * `medium` - medium
     * `high` - high
+    * `xhigh` - xhigh
     * `max` - max */
       reasoning_effort?: ReasoningEffortEnum;
       /** Ephemeral GitHub user token from PostHog Code for user-authored cloud pull requests. */
