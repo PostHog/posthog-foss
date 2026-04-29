@@ -203,6 +203,61 @@ def get_primary_key_columns(conn: psycopg.Connection, schema: str, table_names: 
     return result
 
 
+def get_leading_index_columns(
+    conn: psycopg.Connection, schema: str, table_names: list[str]
+) -> dict[str, set[str]] | None:
+    """Return the set of columns that are the leading column of any index per table.
+
+    Used to surface a UI warning when a user picks an incremental field that isn't
+    indexed — those would force a full scan on every sync. Includes the primary key
+    (since PKs back an implicit index in Postgres). Excludes:
+
+    - `indkey[0] = 0`: the leading index entry is an expression (e.g. a functional
+      index on `lower(email)`), not a plain column — we can't tell whether it
+      accelerates `WHERE col >= …` so don't claim it does.
+    - `indisvalid = false`: the index isn't usable by the planner (failed
+      `CREATE INDEX CONCURRENTLY`, in-progress build) and won't accelerate any
+      query.
+    - `indpred IS NOT NULL`: partial indexes only accelerate queries whose
+      predicate the planner can prove implies the index predicate. Most partial
+      indexes in practice (`WHERE deleted_at IS NULL` and similar) don't apply
+      to the incremental sync's `WHERE col >= last_max`, so flagging the
+      leading column as indexed would suppress a warning the user genuinely
+      needs.
+
+    Returns None when discovery fails (e.g. permission issues on system catalogs)
+    so the caller can default to no warning rather than blowing away other
+    discovery results.
+    """
+    if not table_names:
+        return {}
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT c.relname AS table_name,
+                       a.attname AS column_name
+                FROM pg_index i
+                JOIN pg_class c ON c.oid = i.indrelid
+                JOIN pg_namespace n ON n.oid = c.relnamespace
+                JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = i.indkey[0]
+                WHERE i.indkey[0] <> 0
+                  AND i.indisvalid
+                  AND i.indpred IS NULL
+                  AND n.nspname = %s
+                  AND c.relname = ANY(%s)
+                """,
+                (schema, table_names),
+            )
+            result: dict[str, set[str]] = {}
+            for row in cur:
+                result.setdefault(row[0], set()).add(row[1])
+        return result
+    except Exception as e:
+        structlog.get_logger().warning("Failed to detect leading index columns for Postgres schemas", exc_info=e)
+        return None
+
+
 def _normalize_function_names(function_names: list[Any]) -> list[str]:
     return sorted(
         {
