@@ -6467,6 +6467,50 @@ export namespace Schemas {
       Zmw: 'ZMW',
     } as const;
 
+    export interface BaselineSparklineDay {
+      clean: number;
+      tolerated: number;
+      changed: number;
+      quarantined: number;
+    }
+
+    export interface BaselineEntry {
+      sparkline: BaselineSparklineDay[];
+      identifier: string;
+      run_type: string;
+      /** @nullable */
+      browser: string | null;
+      /** @nullable */
+      thumbnail_hash: string | null;
+      /** @nullable */
+      width: number | null;
+      /** @nullable */
+      height: number | null;
+      tolerate_count_30d: number;
+      tolerate_count_90d: number;
+      is_quarantined: boolean;
+      last_run_at: string;
+      /** @nullable */
+      recent_diff_avg: number | null;
+    }
+
+    export type BaselineTotalsByRunType = {[key: string]: number};
+
+    export interface BaselineTotals {
+      by_run_type: BaselineTotalsByRunType;
+      all_snapshots: number;
+      recently_tolerated: number;
+      frequently_tolerated: number;
+      currently_quarantined: number;
+    }
+
+    export interface BaselineOverview {
+      entries: BaselineEntry[];
+      totals: BaselineTotals;
+      truncated: boolean;
+      generated_at: string;
+    }
+
     /**
      * * `minimal` - minimal
     * `detailed` - detailed
@@ -44688,18 +44732,7 @@ export namespace Schemas {
     run_type?: string;
     };
 
-    export type VisualReviewReposSnapshotsListParams = {
-    /**
-     * Number of results to return per page.
-     */
-    limit?: number;
-    /**
-     * The initial index from which to return the results.
-     */
-    offset?: number;
-    };
-
-    export type VisualReviewRunsListParams = {
+    export type VisualReviewReposRunsListParams = {
     /**
      * Number of results to return per page.
      */
@@ -44712,6 +44745,17 @@ export namespace Schemas {
      * Filter by review state
      */
     review_state?: string;
+    };
+
+    export type VisualReviewReposSnapshotsListParams = {
+    /**
+     * Number of results to return per page.
+     */
+    limit?: number;
+    /**
+     * The initial index from which to return the results.
+     */
+    offset?: number;
     };
 
     export type VisualReviewRunsSnapshotsListParams = {
