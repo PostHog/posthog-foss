@@ -785,6 +785,17 @@
 # ---
 # name: TestWebStatsTableQueryRunner.test_bounce_rate.1
   '''
+  
+  SELECT timestamp
+  from events
+  WHERE team_id = 99999
+    AND timestamp > '2015-01-01'
+  order by timestamp
+  limit 1
+  '''
+# ---
+# name: TestWebStatsTableQueryRunner.test_bounce_rate.2
+  '''
   SELECT counts.breakdown_value AS `context.columns.breakdown_value`,
          tuple(counts.visitors, counts.previous_visitors) AS `context.columns.visitors`,
          tuple(counts.views, counts.previous_views) AS `context.columns.views`,
