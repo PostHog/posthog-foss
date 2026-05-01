@@ -1734,7 +1734,6 @@ export const getTreeItemsProducts = (): FileSystemImport[] => [
         category: ProductItemCategory.BEHAVIOR,
         href: urls.supportTickets(),
         type: 'conversations',
-        flag: FEATURE_FLAGS.PRODUCT_SUPPORT,
         tags: ['beta'],
         iconType: 'conversations',
         iconColor: ['var(--color-product-support-light)'] as FileSystemIconColor,
