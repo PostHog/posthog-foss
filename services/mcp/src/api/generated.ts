@@ -25269,6 +25269,11 @@ export namespace Schemas {
        * @nullable
        */
       github_integration?: number | null;
+      /**
+       * User-scoped GitHub integration to use for user-authored cloud runs.
+       * @nullable
+       */
+      github_user_integration?: string | null;
       /** @nullable */
       signal_report?: string | null;
       signal_report_task_relationship?: SignalReportTaskRelationshipEnum;
@@ -25749,6 +25754,8 @@ export namespace Schemas {
     }
 
     export interface UserGitHubIntegrationItem {
+      /** PostHog UserIntegration row id. */
+      id: string;
       /** Integration kind; always `github` for this API. */
       kind: string;
       /** GitHub App installation id. */
@@ -30748,6 +30755,11 @@ export namespace Schemas {
        * @nullable
        */
       github_integration?: number | null;
+      /**
+       * User-scoped GitHub integration to use for user-authored cloud runs.
+       * @nullable
+       */
+      github_user_integration?: string | null;
       /** @nullable */
       signal_report?: string | null;
       signal_report_task_relationship?: SignalReportTaskRelationshipEnum;
@@ -37325,7 +37337,7 @@ export namespace Schemas {
     export interface UserGitHubLinkStartResponse {
       /** URL to open in the browser to install or authorize the GitHub App for this user. */
       install_url: string;
-      /** oauth_authorize when using user OAuth against an existing team installation; app_install for the GitHub App installation UI. */
+      /** OAuth or install flow used for this GitHub connection. */
       connect_flow: string;
     }
 
@@ -45364,6 +45376,29 @@ export namespace Schemas {
      * The initial index from which to return the results.
      */
     offset?: number;
+    };
+
+    export type UsersIntegrationsGithubBranchesRetrieveParams = {
+    /**
+     * Maximum number of branches to return
+     * @minimum 1
+     * @maximum 1000
+     */
+    limit?: number;
+    /**
+     * Number of branches to skip
+     * @minimum 0
+     */
+    offset?: number;
+    /**
+     * Repository in owner/repo format
+     * @minLength 1
+     */
+    repo: string;
+    /**
+     * Optional case-insensitive branch name search query.
+     */
+    search?: string;
     };
 
     export type UsersIntegrationsGithubReposRetrieveParams = {
