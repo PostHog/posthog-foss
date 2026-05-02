@@ -58,6 +58,7 @@ class EventDefinition(UUIDTModel):
                 name="posthog_eventdef_enforce_idx",
                 condition=models.Q(enforcement_mode="reject"),
             ),
+            models.Index(fields=["team_id", "name"], name="posthog_eventdef_team_name_idx"),
         ]
         constraints = [
             UniqueConstraintByExpression(
