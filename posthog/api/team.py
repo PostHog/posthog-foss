@@ -14,6 +14,7 @@ from django.utils.dateparse import parse_datetime
 
 from drf_spectacular.utils import extend_schema, extend_schema_field, extend_schema_view
 from loginas.utils import is_impersonated_session
+from opentelemetry import trace
 from rest_framework import exceptions, request, response, serializers, viewsets
 from rest_framework.permissions import BasePermission, IsAuthenticated
 
@@ -76,6 +77,8 @@ from posthog.utils import get_instance_realm, get_instance_region, get_ip_addres
 from products.customer_analytics.backend.models.team_customer_analytics_config import TeamCustomerAnalyticsConfig
 from products.feature_flags.backend.models import TeamFeatureFlagDefaultsConfig
 from products.signals.backend.models import SignalSourceConfig
+
+tracer = trace.get_tracer(__name__)
 
 
 def _format_serializer_errors(serializer_errors: dict) -> str:
@@ -441,25 +444,31 @@ class TeamSerializer(serializers.ModelSerializer, UserPermissionsSerializerMixin
         )
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
+        with tracer.start_as_current_span("team_serializer.default_fields"):
+            representation = super().to_representation(instance)
         # fallback to the default posthog data theme id, if the color feature isn't available e.g. after a downgrade
         if not instance.organization.is_feature_available(AvailableFeature.DATA_COLOR_THEMES):
-            representation["default_data_theme"] = (
-                DataColorTheme.objects.filter(team_id__isnull=True).values_list("id", flat=True).first()
-            )
+            with tracer.start_as_current_span("team_serializer.default_data_theme_fallback"):
+                representation["default_data_theme"] = (
+                    DataColorTheme.objects.filter(team_id__isnull=True).values_list("id", flat=True).first()
+                )
 
         return representation
 
+    @tracer.start_as_current_span("team_serializer.effective_membership_level")
     def get_effective_membership_level(self, team: Team) -> OrganizationMembership.Level | None:
         # TODO: Map from user_access_controls
         return self.user_permissions.team(team).effective_membership_level
 
+    @tracer.start_as_current_span("team_serializer.has_group_types")
     def get_has_group_types(self, team: Team) -> bool:
         return bool(get_group_types_for_project(team.project_id))
 
+    @tracer.start_as_current_span("team_serializer.group_types")
     def get_group_types(self, team: Team) -> list[dict[str, Any]]:
         return get_group_types_for_project(team.project_id)
 
+    @tracer.start_as_current_span("team_serializer.live_events_token")
     def get_live_events_token(self, team: Team) -> str | None:
         request = self.context.get("request")
         user_id = request.user.id if request and hasattr(request, "user") and request.user.is_authenticated else None
@@ -476,6 +485,7 @@ class TeamSerializer(serializers.ModelSerializer, UserPermissionsSerializerMixin
         )
 
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    @tracer.start_as_current_span("team_serializer.product_intents")
     def get_product_intents(self, obj):
         enqueue_product_activation_calc_debounced(obj.id)
         return ProductIntent.objects.filter(team=obj).values(
@@ -483,6 +493,7 @@ class TeamSerializer(serializers.ModelSerializer, UserPermissionsSerializerMixin
         )
 
     @extend_schema_field(serializers.DictField(child=serializers.BooleanField()))
+    @tracer.start_as_current_span("team_serializer.managed_viewsets")
     def get_managed_viewsets(self, obj):
         from products.data_warehouse.backend.models import DataWarehouseManagedViewSet
         from products.data_warehouse.backend.types import DataWarehouseManagedViewSetKind
@@ -496,6 +507,7 @@ class TeamSerializer(serializers.ModelSerializer, UserPermissionsSerializerMixin
         serializers.ListField(child=serializers.ChoiceField(choices=[(e.value, e.value) for e in SetupTaskId]))
     )
     def get_available_setup_task_ids(self, obj) -> list[str]:
+        # Pure-compute - no span (matches the policy in the PR description).
         return [e.value for e in SetupTaskId]
 
     @staticmethod
